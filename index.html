@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promissão — Sistema Integrado de Avaliação de Eventos</title>
+<script src="logos_data.js"></script>
+<script src="libs/three.min.js"></script>
+<script src="libs/OBJLoader.js"></script>
+<script src="libs/OrbitControls.js"></script>
+<script src="libs/RoomEnvironment.js"></script>
+<script src="libs/totem_obj_data.js"></script>
+<style>
+:root{--g:#00843D;--gd:#006631;--b:#005A9C;--bd:#003E6B;--y:#FFD100;--ink:#0F1B2D;--mut:#5B6675;--line:#DCE1E7;--soft:#F4F6F8;--red:#C62828}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#151A21;font-family:"Segoe UI",Arial,Helvetica,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%) scale(var(--s,1));background:#fff;overflow:hidden;user-select:none}
+.ic{display:inline-block;width:1em;height:1em;line-height:0}
+.ic svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- Moldura ---------- */
+.flag{position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--g) 0 62%,var(--y) 62% 66%,var(--b) 66% 100%);z-index:60}
+.topbar{position:absolute;top:6px;left:0;right:0;height:90px;display:flex;align-items:center;justify-content:space-between;padding:0 80px;z-index:50;border-bottom:1px solid var(--line);background:#fff}
+.brand{display:flex;align-items:center;gap:16px}
+.brand img{height:56px}
+.brand small{display:block;font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--mut);font-weight:700}
+.brand strong{font-size:20px;color:var(--b);font-weight:800}
+.sec-label{font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--mut);display:flex;gap:14px;align-items:center}
+.sec-label b{color:var(--ink)}
+.sec-label span{color:var(--g)}
+.bottombar{position:absolute;bottom:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 80px;border-top:1px solid var(--line);background:#fff;z-index:50;font-size:14px;color:var(--mut)}
+.dots{display:flex;gap:8px}
+.dots i{width:44px;height:5px;background:var(--line);cursor:pointer;transition:all .4s}
+.dots i.done{background:#9FC9B0}
+.dots i.on{background:var(--g);width:84px}
+.count{font-weight:800;color:var(--ink);font-size:16px;letter-spacing:1px}
+.count small{font-weight:600;color:var(--mut);margin-right:18px;letter-spacing:0}
+
+/* ---------- Slides e transições ---------- */
+.slides{position:absolute;top:96px;bottom:72px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:56px 80px 40px;visibility:hidden;background:#fff}
+.slide.full{padding:0}
+.slide.active{visibility:visible;z-index:2;animation:clipIn .95s cubic-bezier(.77,0,.18,1) both}
+.slide.active.back{animation-name:clipInBack}
+.slide.active.noanim{animation:none}
+.slide.leaving{visibility:visible;z-index:1;animation:leave .85s cubic-bezier(.6,0,.4,1) both}
+.slide.leaving.back{animation-name:leaveBack}
+.slide::after{content:"";position:absolute;top:0;bottom:0;width:8px;background:var(--g);left:100%;opacity:0;z-index:20}
+.slide.active:not(.back):not(.noanim)::after{animation:edge .95s cubic-bezier(.77,0,.18,1)}
+@keyframes clipIn{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)}}
+@keyframes clipInBack{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes leave{to{transform:translateX(-90px);opacity:.25}}
+@keyframes leaveBack{to{transform:translateX(90px);opacity:.25}}
+@keyframes edge{0%{left:100%;opacity:1}98%{left:0;opacity:1}100%{left:0;opacity:0}}
+
+.rv{opacity:0}
+.slide.leaving .rv{opacity:1}
+.slide.active .rv{animation:rvUp .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.45s + var(--d,0) * .09s)}
+.slide.active .rv.l{animation-name:rvLeft}
+.slide.active .rv.s{animation-name:rvScale}
+.slide.active .rv.x{animation-name:rvX}
+.rv.x{transform-origin:left center}
+@keyframes rvUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes rvLeft{from{opacity:0;transform:translateX(-50px)}to{opacity:1;transform:none}}
+@keyframes rvScale{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:none}}
+@keyframes rvX{from{opacity:1;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.eyebrow{font-size:16px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--g);display:flex;align-items:center;gap:14px}
+.eyebrow::before{content:"";width:40px;height:3px;background:var(--g)}
+h2.title{font-size:58px;font-weight:800;letter-spacing:-1.2px;line-height:1.08;margin-top:14px}
+h2.title em,h1 em{font-style:normal;color:var(--b)}
+.lead{font-size:22px;color:var(--mut);line-height:1.5;margin-top:16px}
+
+/* ---------- S1 Capa ---------- */
+.cover{position:absolute;inset:0;display:flex}
+.cover-l{flex:1;padding:40px 90px 40px 80px;display:flex;flex-direction:column;justify-content:center}
+.cover h1{font-size:104px;font-weight:900;line-height:1.0;letter-spacing:-3px;margin-top:26px}
+.cover-sub{font-size:25px;color:var(--mut);line-height:1.5;margin-top:28px;max-width:900px}
+.cover-rule{height:3px;background:var(--line);margin:48px 0 34px;position:relative}
+.cover-rule::before{content:"";position:absolute;left:0;top:0;height:3px;width:160px;background:var(--g)}
+.cover-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.cover-meta span{display:block;font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--mut);font-weight:700;margin-bottom:10px}
+.cover-meta b{font-size:19px;line-height:1.5;font-weight:700}
+.cover-r{width:700px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 2px,transparent 2px 28px),var(--b)}
+.cover-r::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16px;background:var(--g)}
+.ring{position:absolute;top:50%;left:50%;width:470px;height:470px;margin:-275px 0 0 -235px;border:2px dashed rgba(255,255,255,.35);border-radius:50%;animation:spin 70s linear infinite}
+.ring.r2{width:610px;height:610px;margin:-345px 0 0 -305px;border:1px solid rgba(255,255,255,.14);animation-duration:110s;animation-direction:reverse}
+.crest-box{width:300px;height:300px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 30px 60px rgba(0,0,0,.28);position:relative;z-index:2;margin-top:-80px}
+.crest-box img{height:240px}
+.cover-cap{position:relative;z-index:2;color:#fff;text-align:center;margin-top:70px}
+.cover-cap b{display:block;font-size:40px;letter-spacing:10px;font-weight:900}
+.cover-cap span{font-size:15px;letter-spacing:4px;text-transform:uppercase;opacity:.75}
+
+/* ---------- S2 Contexto ---------- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:56px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stat{padding:34px 40px 34px 0;position:relative}
+.stat+.stat{padding-left:44px;border-left:1px solid var(--line)}
+.stat .num{font-size:140px;font-weight:900;letter-spacing:-5px;line-height:1;color:var(--b)}
+.stat .num small{font-size:46px;letter-spacing:0;margin-left:10px;color:var(--ink)}
+.stat.warn .num{color:var(--red)}
+.stat .lbl{font-size:22px;color:var(--mut);margin-top:14px;line-height:1.4;max-width:420px}
+.stat .tick{position:absolute;left:0;top:-2px;height:4px;width:120px;background:var(--b)}
+.stat+.stat .tick{left:44px}
+.stat.warn .tick{background:var(--red)}
+.ctx-bottom{display:grid;grid-template-columns:1.25fr 1fr;gap:70px;margin-top:44px;align-items:center}
+.crowd{display:grid;grid-template-columns:repeat(20,1fr);gap:10px 8px}
+.person{width:34px;height:34px;color:#C3CCD6;opacity:0}
+.person svg{width:100%;height:100%;fill:currentColor}
+.slide.active .person{animation:pop .45s cubic-bezier(.2,.9,.3,1.3) both;animation-delay:calc(.9s + var(--i) * 9ms)}
+.slide.leaving .person{opacity:1}
+.person.hl{color:var(--b)}
+@keyframes pop{from{opacity:0;transform:scale(.3) translateY(10px)}to{opacity:1;transform:none}}
+.crowd-cap{font-size:17px;color:var(--mut);margin-top:16px;font-weight:600}
+.profile h4{font-size:15px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:18px}
+.chips{display:flex;flex-wrap:wrap;gap:12px}
+.chip{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:12px 18px;font-size:19px;font-weight:700;background:#fff}
+.chip .ic{font-size:26px;color:var(--b)}
+.profile p{font-size:20px;line-height:1.5;color:var(--ink);margin-top:24px;border-left:4px solid var(--y);padding-left:18px}
+
+/* ---------- S3 Problema ---------- */
+.flow{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:24px;margin-top:70px}
+.flow-line{position:absolute;top:68px;left:10%;right:10%;height:4px;background:var(--line)}
+.flow-line::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,var(--b) 0 18px,transparent 18px 30px);opacity:.5}
+.step{text-align:center;position:relative}
+.node{width:136px;height:136px;margin:0 auto;border-radius:50%;background:#fff;border:3px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:62px;color:var(--b);position:relative;z-index:2;box-shadow:0 0 0 12px #fff}
+.step.first .node{border-color:var(--g);color:var(--g)}
+.step .n{font-size:13px;letter-spacing:3px;color:var(--mut);font-weight:800;margin-top:26px}
+.step b{display:block;font-size:24px;margin-top:8px}
+.step p{font-size:17px;color:var(--mut);margin-top:6px;line-height:1.4}
+.pain{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:#FDECEC;color:var(--red);font-weight:700;font-size:16px;padding:9px 14px;border-left:4px solid var(--red);text-align:left}
+.pain .ic{font-size:20px;flex:none}
+.verdict{margin-top:70px;background:var(--ink);color:#fff;padding:34px 44px;display:flex;align-items:center;gap:28px;font-size:30px;line-height:1.35}
+.verdict .ic{font-size:56px;color:var(--y);flex:none}
+.verdict em{font-style:normal;color:var(--y);font-weight:800}
+
+/* ---------- S4 Solução (hub) ---------- */
+.sol{display:grid;grid-template-columns:960px 1fr;gap:60px;margin-top:20px;height:700px}
+.hub{position:relative;height:680px}
+.hub svg.hub-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hub .base{stroke:var(--line);stroke-width:6}
+.hub .flowp{stroke:var(--b);stroke-width:3;stroke-dasharray:10 14;animation:dash 1.1s linear infinite}
+.hub .flowp.g{stroke:var(--g)}
+@keyframes dash{to{stroke-dashoffset:-48}}
+.core{position:absolute;left:480px;top:330px;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:50%;background:var(--b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 16px rgba(0,90,156,.14),0 0 0 32px rgba(0,90,156,.06);z-index:3;text-align:center}
+.core .core-icon{width:56px;height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.core .core-icon svg{width:100%;height:100%;stroke:#fff}
+.core b{font-size:38px;font-weight:900;letter-spacing:3px;line-height:1}
+.core span{font-size:13px;letter-spacing:2px;text-transform:uppercase;opacity:.85;margin-top:8px;font-weight:700}
+.pulse{position:absolute;left:480px;top:330px;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:50%;border:2px solid var(--b);animation:ping 2.4s ease-out infinite;pointer-events:none}
+@keyframes ping{from{transform:scale(1);opacity:.6}to{transform:scale(1.9);opacity:0}}
+.hnode{position:absolute;width:270px;margin-left:-135px;background:#fff;border:1px solid var(--line);border-top:6px solid var(--b);padding:26px 20px 22px;text-align:center;z-index:3;box-shadow:0 14px 32px rgba(15,27,45,.09);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hnode.g{border-top-color:var(--g)}
+.hnode.k{border-top-color:var(--ink)}
+.hnode .h-icon{width:54px;height:54px;margin-bottom:14px;display:flex;align-items:center;justify-content:center}
+.hnode .h-icon svg{width:100%;height:100%;stroke:var(--b)}
+.hnode.g .h-icon svg{stroke:var(--g)}
+.hnode.k .h-icon svg{stroke:var(--ink)}
+.hnode .h-title{font-size:23px;line-height:1.2;font-weight:900;color:var(--ink);margin-bottom:6px;display:block}
+.hnode .h-sub{font-size:15px;line-height:1.3;color:var(--mut);display:block;font-weight:600}
+.sol-list{display:flex;flex-direction:column;justify-content:center}
+.srow{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:26px 0;border-bottom:1px solid var(--line)}
+.srow:first-child{border-top:1px solid var(--line)}
+.srow .k{font-size:44px;font-weight:900;color:var(--line);line-height:1}
+.srow b{font-size:26px}
+.srow p{font-size:19px;color:var(--mut);line-height:1.45;margin-top:6px}
+.note{margin-top:30px;display:flex;gap:16px;align-items:flex-start;background:var(--soft);padding:22px 24px;border-left:5px solid var(--g);font-size:19px;line-height:1.45}
+.note .ic{font-size:34px;color:var(--g);flex:none}
+
+/* ---------- S5 Totem 3D ---------- */
+.tot{display:grid;grid-template-columns:1040px 1fr;gap:70px;height:100%}
+.viewer{position:relative;margin:-56px 0 -40px -80px;background:radial-gradient(ellipse at 50% 38%,#FFFFFF 0%,#EEF1F4 55%,#DDE3E9 100%);border-right:1px solid var(--line);overflow:hidden}
+#totem3d{position:absolute;inset:0}
+#totem3d canvas{display:block}
+.v-tag{position:absolute;top:30px;left:40px;font-size:13px;letter-spacing:3px;font-weight:800;color:var(--mut);text-transform:uppercase;z-index:3}
+.v-tag b{color:var(--ink)}
+.v-hint{position:absolute;bottom:26px;left:40px;font-size:15px;color:var(--mut);z-index:3;display:flex;gap:10px;align-items:center}
+.v-btn{position:absolute;bottom:20px;right:30px;z-index:3;background:#fff;border:1px solid var(--line);padding:10px 16px;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;color:var(--ink)}
+.v-btn:hover{border-color:var(--b);color:var(--b)}
+.v-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--mut);font-size:20px;text-align:center;padding:60px}
+.feat{display:grid;grid-template-columns:64px 1fr;gap:20px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line)}
+.feat .fi{width:64px;height:64px;background:#EAF5EF;color:var(--g);display:flex;align-items:center;justify-content:center;font-size:34px}
+.feat b{font-size:22px}
+.feat p{font-size:17px;color:var(--mut);margin-top:3px}
+.journey{margin-top:34px}
+.journey h4{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
+.jsteps{display:flex;align-items:center}
+.js{flex:1;background:var(--soft);border:1px solid var(--line);padding:14px 8px;text-align:center;font-size:14px;font-weight:800;color:var(--ink)}
+.js.end{background:var(--g);color:#FFFFFF !important;border-color:var(--gd);box-shadow:0 2px 8px rgba(0,132,61,0.25)}
+.jarr{width:18px;height:2px;background:var(--b);flex:none}
+
+/* ---------- S6 Ao vivo ---------- */
+.live-head{display:flex;justify-content:space-between;align-items:flex-end}
+.live-pill{display:flex;align-items:center;gap:12px;border:1px solid var(--line);padding:12px 20px;font-size:15px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.live-pill i{width:12px;height:12px;border-radius:50%;background:var(--red);animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.25}}
+.dash{position:relative;margin-top:30px;display:grid;grid-template-rows:200px 1fr;gap:22px;height:610px}
+.kpis{display:grid;grid-template-columns:1fr 1fr 1.15fr 1fr;gap:22px}
+.kpi{border:1px solid var(--line);border-top:5px solid var(--b);padding:22px 26px;position:relative;overflow:hidden;transition:box-shadow .4s}
+.kpi.g{border-top-color:var(--g)}
+.kpi.flash{box-shadow:inset 0 0 0 3px var(--y)}
+.kpi h5{font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--mut)}
+.kpi .v{font-size:76px;font-weight:900;letter-spacing:-2px;line-height:1.1;margin-top:8px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:15px;color:var(--mut)}
+.gauge{display:flex;align-items:center;gap:20px;margin-top:6px}
+.gauge svg{width:132px;height:132px;transform:rotate(-90deg)}
+.gauge .tr{stroke:#E7EBEF;stroke-width:14;fill:none}
+.gauge .val{stroke:var(--g);stroke-width:14;fill:none;stroke-dasharray:439.8;stroke-dashoffset:439.8;transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)}
+.gauge .gv{font-size:58px;font-weight:900;letter-spacing:-1px}
+.gauge .gv small{font-size:22px;color:var(--mut);font-weight:700}
+.split{margin-top:18px}
+.split .nums{display:flex;justify-content:space-between;font-size:17px;font-weight:700}
+.split .nums b{font-size:40px;display:block;font-weight:900}
+.split .nums .r{text-align:right}
+.sbar{display:flex;height:16px;margin-top:12px;background:#E7EBEF}
+.sbar i{display:block;height:100%;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.sbar .m{background:var(--b)}
+.sbar .t{background:var(--g)}
+.panels{display:grid;grid-template-columns:1.1fr .85fr 1.15fr;gap:22px;min-height:0}
+.pnl{border:1px solid var(--line);padding:22px 26px;display:flex;flex-direction:column;min-height:0}
+.pnl h5{font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
+.chart{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:18px;align-items:end;border-bottom:2px solid var(--ink);padding-top:30px}
+.col{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.col .bar{width:100%;height:0;transition:height 1s cubic-bezier(.2,.8,.2,1);position:relative}
+.col .bar span{position:absolute;top:-30px;left:0;right:0;text-align:center;font-weight:900;font-size:20px;color:var(--ink)}
+.xl{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-top:10px;text-align:center;font-size:14px;color:var(--mut);font-weight:700}
+.xl b{display:block;font-size:20px;color:var(--ink)}
+.cat{padding:14px 0}
+.cat+.cat{border-top:1px solid var(--line)}
+.cat .top{display:flex;justify-content:space-between;align-items:baseline;font-size:19px;font-weight:700}
+.cat .top b{font-size:46px;font-weight:900}
+.cat .track{height:12px;background:#E7EBEF;margin-top:10px}
+.cat .track i{display:block;height:100%;width:0;background:var(--b);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.cat.g .track i{background:var(--g)}
+.feed{list-style:none;flex:1;overflow:hidden}
+.feed li{display:grid;grid-template-columns:46px 1fr auto;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.feed li.new{animation:feedIn 1.6s cubic-bezier(.2,.8,.2,1)}
+@keyframes feedIn{0%{opacity:0;transform:translateY(-24px);background:#DDF3E6}40%{opacity:1;transform:none;background:#DDF3E6}100%{background:transparent}}
+.feed .fic{width:46px;height:46px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--b)}
+.feed b{font-size:18px;font-family:Consolas,monospace;letter-spacing:1px}
+.feed .meta{display:block;font-size:14px;color:var(--mut);margin-top:2px}
+.feed .nts{display:flex;gap:8px}
+.feed .nts span{font-size:13px;font-weight:800;background:var(--soft);padding:6px 9px}
+.empty{position:absolute;inset:0;background:rgba(255,255,255,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;text-align:center;transition:opacity .5s}
+.empty.hide{opacity:0;pointer-events:none}
+.empty .ic{font-size:96px;color:var(--b)}
+.empty b{font-size:34px;margin-top:20px}
+.empty p{font-size:19px;color:var(--mut);margin-top:10px}
+.empty .dotsw{display:flex;gap:10px;margin-top:24px}
+.empty .dotsw i{width:12px;height:12px;background:var(--g);animation:blink 1.2s infinite}
+.empty .dotsw i:nth-child(2){animation-delay:.2s}.empty .dotsw i:nth-child(3){animation-delay:.4s}
+
+/* ---------- S7 Encerramento ---------- */
+.end{position:absolute;inset:0;display:grid;grid-template-columns:860px 1fr}
+.end-l{background:repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 2px,transparent 2px 28px),var(--b);color:#fff;padding:90px 80px;display:flex;flex-direction:column;justify-content:center;position:relative}
+.end-l::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16px;background:var(--g)}
+.end-l img{height:110px;align-self:flex-start}
+.end-l h2{font-size:140px;font-weight:900;letter-spacing:-5px;line-height:1;margin-top:40px}
+.end-l p{font-size:24px;opacity:.85;margin-top:20px;line-height:1.5}
+.end-team{margin-top:50px;display:grid;grid-template-columns:1fr 1fr;gap:10px 30px;font-size:21px;font-weight:700}
+.end-r{padding:90px 90px;display:flex;flex-direction:column;justify-content:center}
+.tl{margin-top:40px;position:relative;padding-left:46px}
+.tl::before{content:"";position:absolute;left:11px;top:10px;bottom:10px;width:3px;background:var(--line)}
+.tli{position:relative;padding:0 0 38px}
+.tli::before{content:"";position:absolute;left:-46px;top:4px;width:22px;height:22px;background:#fff;border:4px solid var(--b)}
+.tli.done::before{background:var(--g);border-color:var(--g)}
+.tli b{font-size:26px}
+.tli p{font-size:18px;color:var(--mut);margin-top:6px}
+
+/* ---------- Tomada de tela (envio do totem) ---------- */
+#takeover{position:absolute;inset:0;z-index:500;color:#fff;display:flex;align-items:center;justify-content:center;visibility:hidden;
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 2px,transparent 2px 30px),var(--g)}
+#takeover.in{visibility:visible;animation:toIn .65s cubic-bezier(.77,0,.18,1) both}
+#takeover.out{visibility:visible;animation:toOut .65s cubic-bezier(.77,0,.18,1) both}
+@keyframes toIn{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes toOut{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 0 100%)}}
+.to-inner{display:flex;align-items:center;gap:80px}
+.to-check svg{width:260px;height:260px;fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.to-check circle{stroke-dasharray:340;stroke-dashoffset:340}
+.to-check path{stroke-dasharray:110;stroke-dashoffset:110;stroke-width:9}
+#takeover.in .to-check circle{animation:drw .7s .35s ease forwards}
+#takeover.in .to-check path{animation:drw .45s .9s ease forwards}
+@keyframes drw{to{stroke-dashoffset:0}}
+.to-text>*{opacity:0}
+#takeover.in .to-text>*{animation:rvUp .6s cubic-bezier(.2,.8,.2,1) both}
+#takeover.in .to-text>*:nth-child(1){animation-delay:.4s}
+#takeover.in .to-text>*:nth-child(2){animation-delay:.5s}
+#takeover.in .to-text>*:nth-child(3){animation-delay:.62s}
+#takeover.in .to-text>*:nth-child(4){animation-delay:.74s}
+#takeover.out .to-text>*{opacity:1}
+.to-eye{font-size:18px;letter-spacing:4px;text-transform:uppercase;font-weight:800;opacity:.85}
+.to-text h2{font-size:92px;font-weight:900;letter-spacing:-3px;line-height:1.05;margin-top:14px}
+.to-cpf{font-family:Consolas,monospace;font-size:60px;letter-spacing:6px;margin-top:20px}
+.to-chips{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+.to-chips span{border:2px solid rgba(255,255,255,.5);padding:12px 20px;font-size:22px;font-weight:700}
+.to-chips span.pts{background:var(--y);color:var(--ink);border-color:var(--y);font-weight:900}
+.to-timer{position:absolute;left:0;right:0;bottom:0;height:10px;background:rgba(0,0,0,.18)}
+.to-timer i{display:block;height:100%;width:0;background:var(--y)}
+#takeover.in .to-timer i{animation:tmr 2.3s linear forwards}
+@keyframes tmr{to{width:100%}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="flag"></div>
+  <header class="topbar">
+    <div class="brand"><img class="crest-img" alt="Brasão de Promissão"><div><small>Prefeitura Municipal de</small><strong>PROMISSÃO / SP</strong></div></div>
+    <div class="sec-label"><span id="secnum">00</span><b id="secname">Abertura</b></div>
+  </header>
+
+  <main class="slides">
+
+    <!-- S1 CAPA -->
+    <section class="slide full active" data-sec="Abertura">
+      <div class="cover">
+        <div class="cover-l">
+          <div class="eyebrow rv">Projeto de Extensão • IFSP Campus Birigui</div>
+          <h1 class="rv" style="--d:1">Da prancheta ao<br><em>dado em tempo real</em></h1>
+          <p class="cover-sub rv" style="--d:2">Sistema integrado de avaliação dos eventos municipais de Promissão/SP — totem de autoatendimento, aplicativo do cidadão e painel de gestão.</p>
+          <div class="cover-rule rv x" style="--d:3"></div>
+          <div class="cover-meta">
+            <div class="rv" style="--d:4"><span>Equipe</span><b>Gabriel Soares<br>Gustavo Labos<br>Livia Gomes<br>Lucas Altino</b></div>
+            <div class="rv" style="--d:5"><span>Curso</span><b>Tecnologia em Sistemas<br>para Internet (TSI)<br>Atividades de Extensão</b></div>
+            <div class="rv" style="--d:6"><span>Parceiro</span><b>Prefeitura Municipal<br>de Promissão<br>Diretoria de Turismo</b></div>
+          </div>
+        </div>
+        <div class="cover-r rv s" style="--d:1">
+          <div class="ring"></div><div class="ring r2"></div>
+          <div class="crest-box"><img class="crest-img" alt="Brasão"></div>
+          <div class="cover-cap"><b>PROMISSÃO</b><span>Estado de São Paulo</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 CONTEXTO -->
+    <section class="slide" data-sec="Contexto">
+      <div class="eyebrow rv">01 — Contexto</div>
+      <h2 class="title rv" style="--d:1">Promissão e seus <em>grandes eventos</em></h2>
+      <div class="stats">
+        <div class="stat rv" style="--d:2"><i class="tick rv x" style="--d:5"></i><div class="num"><span data-count="35">0</span><small>mil</small></div><div class="lbl">habitantes no município</div></div>
+        <div class="stat rv" style="--d:3"><i class="tick rv x" style="--d:6"></i><div class="num"><span data-count="5000">0</span></div><div class="lbl">pessoas em um único grande evento (de 2 a 5 mil)</div></div>
+        <div class="stat warn rv" style="--d:4"><i class="tick rv x" style="--d:7"></i><div class="num"><span>0</span></div><div class="lbl">indicadores estruturados de satisfação disponíveis hoje</div></div>
+      </div>
+      <div class="ctx-bottom">
+        <div>
+          <div class="crowd" id="crowd"></div>
+          <div class="crowd-cap rv" style="--d:8">Milhares de pessoas por edição — e nenhum canal estruturado para ouvi-las.</div>
+        </div>
+        <div class="profile rv" style="--d:6">
+          <h4>Perfil do público</h4>
+          <div class="chips">
+            <div class="chip"><span class="ic" data-i="users"></span>Adultos e idosos</div>
+            <div class="chip"><span class="ic" data-i="pin"></span>Moradores da zona rural</div>
+            <div class="chip"><span class="ic" data-i="car"></span>Turistas da região</div>
+            <div class="chip"><span class="ic" data-i="home"></span>Famílias locais</div>
+          </div>
+          <p>Público diverso e pouco habituado a formulários online: apenas divulgar um link não gera respostas.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 PROBLEMA -->
+    <section class="slide" data-sec="Diagnóstico">
+      <div class="eyebrow rv">02 — Diagnóstico</div>
+      <h2 class="title rv" style="--d:1">Como a avaliação é feita <em>hoje</em></h2>
+      <div class="flow">
+        <div class="flow-line rv x" style="--d:2"></div>
+        <div class="step first rv" style="--d:3"><div class="node"><span class="ic" data-i="calendar"></span></div><div class="n">ETAPA 1</div><b>Evento acontece</b><p>2 a 5 mil pessoas no recinto</p></div>
+        <div class="step rv" style="--d:4"><div class="node"><span class="ic" data-i="clipboard"></span></div><div class="n">ETAPA 2</div><b>Prancheta e caneta</b><p>Servidor aborda o público</p><div class="pain"><span class="ic" data-i="x"></span>Poucas respostas</div></div>
+        <div class="step rv" style="--d:5"><div class="node"><span class="ic" data-i="doc"></span></div><div class="n">ETAPA 3</div><b>Papéis à prefeitura</b><p>Fichas levadas ao setor</p><div class="pain"><span class="ic" data-i="x"></span>Papel se perde</div></div>
+        <div class="step rv" style="--d:6"><div class="node"><span class="ic" data-i="keyboard"></span></div><div class="n">ETAPA 4</div><b>Digitação manual</b><p>Transcrição em planilha</p><div class="pain"><span class="ic" data-i="x"></span>Retrabalho e erros</div></div>
+        <div class="step rv" style="--d:7"><div class="node"><span class="ic" data-i="clock"></span></div><div class="n">ETAPA 5</div><b>Relatório tardio</b><p>Dias depois do evento</p><div class="pain"><span class="ic" data-i="x"></span>Nada a corrigir a tempo</div></div>
+      </div>
+      <div class="verdict rv" style="--d:9"><span class="ic" data-i="alert"></span><div><b>Resultado:</b> a prefeitura investe no evento, mas planeja a próxima edição <em>sem dados</em>.</div></div>
+    </section>
+
+    <!-- S4 SOLUÇÃO -->
+    <section class="slide" data-sec="Solução">
+      <div class="eyebrow rv">03 — Solução</div>
+      <h2 class="title rv" style="--d:1">Um ecossistema, uma identidade: <em>o CPF</em></h2>
+      <div class="sol">
+        <div class="hub rv s" style="--d:2">
+          <svg class="hub-lines" viewBox="0 0 960 680">
+            <path class="base" d="M480 330 L170 130"/><path class="base" d="M480 330 L790 130"/><path class="base" d="M480 330 L480 580"/>
+            <path class="flowp g" d="M170 130 L480 330"/><path class="flowp" d="M790 130 L480 330"/><path class="flowp" d="M480 330 L480 580"/>
+          </svg>
+          <div class="pulse"></div>
+          <div class="core">
+            <div class="core-icon"><span class="ic" data-i="id"></span></div>
+            <b>CPF</b>
+            <span>identidade única</span>
+          </div>
+          <div class="hnode g" style="left:170px;top:40px">
+            <div class="h-icon"><span class="ic" data-i="kiosk"></span></div>
+            <strong class="h-title">Totem</strong>
+            <span class="h-sub">coleta presencial rápida</span>
+          </div>
+          <div class="hnode" style="left:790px;top:40px">
+            <div class="h-icon"><span class="ic" data-i="phone"></span></div>
+            <strong class="h-title">App do Cidadão</strong>
+            <span class="h-sub">agenda e avaliações</span>
+          </div>
+          <div class="hnode k" style="left:480px;top:500px">
+            <div class="h-icon"><span class="ic" data-i="dashboard"></span></div>
+            <strong class="h-title">Painel de Gestão</strong>
+            <span class="h-sub">indicadores e relatórios</span>
+          </div>
+        </div>
+        <div class="sol-list">
+          <div class="srow rv" style="--d:4"><div class="k">01</div><div><b>Totem de autoatendimento</b><p>Só o CPF e toques na tela. Inclui quem não tem, ou não quer usar, o celular.</p></div></div>
+          <div class="srow rv" style="--d:5"><div class="k">02</div><div><b>Aplicativo do cidadão</b><p>Agenda de eventos, notícias, avaliação com pergunta aberta e Passaporte de pontos.</p></div></div>
+          <div class="srow rv" style="--d:6"><div class="k">03</div><div><b>Painel de gestão</b><p>Formulários, indicadores em tempo real, histórico e relatórios para a Diretoria de Turismo.</p></div></div>
+          <div class="note rv" style="--d:7"><span class="ic" data-i="refresh"></span><div>Respondeu no totem sem cadastro? Os pontos ficam no CPF e são vinculados quando o cidadão instalar o app.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S5 TOTEM 3D -->
+    <section class="slide" data-sec="Totem 3D">
+      <div class="tot">
+        <div class="viewer">
+          <div id="totem3d"></div>
+          <div class="v-tag">Modelo 3D Oficial • <b>Montagem1.obj</b></div>
+          <div class="v-hint"><span class="ic" data-i="move"></span>Arraste para girar • Role para aproximar</div>
+          <button class="v-btn" id="spinBtn">Pausar rotação</button>
+          <div class="v-fallback" id="v-fallback">Não foi possível iniciar o WebGL neste navegador.<br>Verifique se a pasta <b>libs/</b> está junto do arquivo.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;padding-right:10px">
+          <div class="eyebrow rv">04 — Hardware & Kiosk</div>
+          <h2 class="title rv" style="--d:1">Totem Físico de <em>Autoatendimento</em></h2>
+          <div style="margin-top:26px">
+            <div class="feat rv" style="--d:2"><div class="fi"><span class="ic" data-i="id"></span></div><div><b>Identificação Zero Fricção</b><p>Apenas o CPF no teclado touch. Sem login complexo ou senhas.</p></div></div>
+            <div class="feat rv" style="--d:3"><div class="fi"><span class="ic" data-i="touch"></span></div><div><b>Perguntas em Telas Sequenciais</b><p>1 pergunta objetiva por etapa com botões gigantes e alto contraste.</p></div></div>
+            <div class="feat rv" style="--d:4"><div class="fi"><span class="ic" data-i="refresh"></span></div><div><b>Auto-reset em 3 Segundos</b><p>Limpa os dados da tela e reinicia sozinho para o próximo da fila.</p></div></div>
+            <div class="feat rv" style="--d:5"><div class="fi"><span class="ic" data-i="shield"></span></div><div><b>Modo Kiosk Travado e LGPD</b><p>Sistema operacional blindado e CPF mascarado na visualização pública.</p></div></div>
+          </div>
+          <div class="journey rv" style="--d:6">
+            <h4>Jornada do munícipe no totem (menos de 20 segundos)</h4>
+            <div class="jsteps">
+              <div class="js">1. CPF</div>
+              <i class="jarr"></i>
+              <div class="js">2. Vínculo</div>
+              <i class="jarr"></i>
+              <div class="js">3. Infra</div>
+              <i class="jarr"></i>
+              <div class="js">4. Segurança</div>
+              <i class="jarr"></i>
+              <div class="js end">5. Concluído (+50 pts)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S6 AO VIVO (DEMONSTRAÇÃO LOGO APÓS O TOTEM) -->
+    <section class="slide" data-sec="Ao vivo">
+      <div class="live-head">
+        <div>
+          <div class="eyebrow rv">05 — Demonstração Prática</div>
+          <h2 class="title rv" style="--d:1">Painel da Prefeitura <em>em Tempo Real</em></h2>
+        </div>
+        <div class="live-pill rv" style="--d:2"><i></i>Ao vivo • Totem #01</div>
+      </div>
+      <div class="dash rv" style="--d:3">
+        <div class="kpis">
+          <div class="kpi" id="k-count"><h5>Avaliações recebidas</h5><div class="v" id="v-count">0</div><div class="s">Festa do Peão 2026</div></div>
+          <div class="kpi g" id="k-avg"><h5>Satisfação média</h5>
+            <div class="gauge"><svg viewBox="0 0 170 170"><circle class="tr" cx="85" cy="85" r="70"/><circle class="val" id="g-val" cx="85" cy="85" r="70"/></svg><div class="gv"><span id="v-avg">0,0</span><small> / 5</small></div></div>
+          </div>
+          <div class="kpi" id="k-split"><h5>Moradores × Visitantes</h5>
+            <div class="split"><div class="nums"><div>Moradores<b id="v-mor">0</b></div><div class="r">Visitantes<b id="v-vis">0</b></div></div><div class="sbar"><i class="m" id="b-mor" style="width:50%"></i><i class="t" id="b-vis" style="width:50%"></i></div></div>
+          </div>
+          <div class="kpi g" id="k-pts"><h5>Pontos distribuídos</h5><div class="v" id="v-pts">0</div><div class="s">50 pontos por avaliação</div></div>
+        </div>
+        <div class="panels">
+          <div class="pnl"><h5>Distribuição das notas (todas as perguntas)</h5>
+            <div class="chart" id="chart"></div>
+            <div class="xl"><div><b>1</b>Péssimo</div><div><b>2</b>Ruim</div><div><b>3</b>Regular</div><div><b>4</b>Bom</div><div><b>5</b>Excelente</div></div>
+          </div>
+          <div class="pnl"><h5>Média por categoria</h5>
+            <div class="cat"><div class="top">Infraestrutura e banheiros <b id="v-infra">–</b></div><div class="track"><i id="b-infra"></i></div></div>
+            <div class="cat g"><div class="top">Segurança e shows <b id="v-seg">–</b></div><div class="track"><i id="b-seg"></i></div></div>
+          </div>
+          <div class="pnl"><h5>Últimas avaliações recebidas</h5><ul class="feed" id="feed"></ul></div>
+        </div>
+        <div class="empty" id="empty"><span class="ic" data-i="kiosk"></span><b>Aguardando a primeira avaliação no totem</b><p>Abra o terminal de autoatendimento (tecla <b>T</b>) e envie uma resposta.</p><div class="dotsw"><i></i><i></i><i></i></div></div>
+      </div>
+    </section>
+
+    <!-- S7 APLICATIVO DO CIDADÃO & GAMIFICAÇÃO -->
+    <section class="slide" data-sec="App Mobile">
+      <div class="eyebrow rv">06 — Mobilidade & Engajamento</div>
+      <h2 class="title rv" style="--d:1">Aplicativo do Cidadão & <em>Passaporte Gamificado</em></h2>
+      <div class="app-split" style="display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:36px;align-items:center">
+        <div>
+          <div class="lead rv" style="--d:2;margin-top:0">O aplicativo municipal conecta o cidadão e o turista ao calendário oficial e retém a atenção do público durante e após o evento.</div>
+          <div style="margin-top:26px">
+            <div class="srow rv" style="--d:3"><div class="k">01</div><div><b>Agenda Cultural & Notícias</b><p>Programação completa dos palcos, horários, localização com mapas e alertas oficiais da Prefeitura.</p></div></div>
+            <div class="srow rv" style="--d:4"><div class="k">02</div><div><b>Avaliação Aprofundada com Feedback Aberto</b><p>Além das notas objetivas, o cidadão pode enviar sugestões descritivas e elogios em texto livre.</p></div></div>
+            <div class="srow rv" style="--d:5"><div class="k">03</div><div><b>Passaporte do Evento & Níveis Cidadãos</b><p>A cada avaliação (no totem ou app), o CPF acumula pontos para níveis: Bronze, Prata, Ouro e Embaixador de Promissão.</p></div></div>
+            <div class="srow rv" style="--d:6"><div class="k">04</div><div><b>Pontuação Retroativa Automática</b><p>Avaliou no totem antes de instalar o app? Ao criar a conta pelo CPF, os pontos já estarão no extrato.</p></div></div>
+          </div>
+        </div>
+        <div class="phone-mock rv s" style="--d:3;display:flex;justify-content:center;position:relative">
+          <div style="width:360px;height:650px;background:#151A21;border:8px solid #2B3038;border-radius:40px;padding:24px 20px;box-shadow:0 25px 60px rgba(0,0,0,0.25);display:flex;flex-direction:column;position:relative">
+            <!-- Notch -->
+            <div style="width:110px;height:18px;background:#2B3038;border-radius:0 0 12px 12px;margin:-24px auto 14px"></div>
+            <!-- Header Mobile -->
+            <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2B3038;padding-bottom:12px">
+              <span style="color:#fff;font-weight:900;font-size:16px;letter-spacing:1px">VIVA PROMISSÃO</span>
+              <span style="background:var(--y);color:var(--ink);font-weight:900;font-size:12px;padding:4px 8px;border-radius:4px">250 PTS</span>
+            </div>
+            <!-- Banner Evento -->
+            <div style="margin-top:16px;background:var(--b);border-radius:12px;padding:16px;color:#fff">
+              <small style="letter-spacing:1px;font-weight:700;opacity:0.8;font-size:11px">HOJE NO RECINTO</small>
+              <h4 style="font-size:18px;font-weight:900;margin-top:4px">Festa do Peão 2026</h4>
+              <p style="font-size:12px;opacity:0.9;margin-top:4px">Arena Principal • Shows às 22h</p>
+            </div>
+            <!-- Cards Internos -->
+            <div style="margin-top:14px;background:#fff;border-radius:12px;padding:14px">
+              <span style="font-size:11px;font-weight:800;color:var(--g);letter-spacing:1px;text-transform:uppercase">Passaporte Ativo</span>
+              <div style="font-size:16px;font-weight:900;color:var(--ink);margin-top:4px">Nível Ouro da Cidade</div>
+              <div style="height:6px;background:#E5E7EB;border-radius:3px;margin:8px 0;overflow:hidden">
+                <div style="width:75%;height:100%;background:var(--g)"></div>
+              </div>
+              <small style="color:var(--mut);font-size:11px">Faltam 50 pts para o selo Embaixador</small>
+            </div>
+            <div style="margin-top:14px;background:#EAF5EF;border-radius:12px;padding:14px;border-left:4px solid var(--g)">
+              <div style="font-size:13px;font-weight:800;color:var(--gd)">Avaliação Pendente</div>
+              <p style="font-size:12px;color:var(--ink);margin-top:2px">Avalie o show e a praça de alimentação e ganhe +50 pts!</p>
+            </div>
+            <div style="margin-top:auto;text-align:center;padding:10px 0 4px">
+              <small style="color:#718096;font-size:11px">Prefeitura Municipal de Promissão / SP</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S8 APP DO SERVIDOR & COLETAS EM CAMPO -->
+    <section class="slide" data-sec="Campo & Offline">
+      <div class="eyebrow rv">07 — Operação em Campo</div>
+      <h2 class="title rv" style="--d:1">Substituição do Papel: <em>App do Servidor</em></h2>
+      <div class="lead rv" style="--d:2">Eliminando pranchetas e prancheteiros: servidores municipais e entrevistadores realizam abordagens ágeis com sincronização resiliente.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:40px">
+        <div class="pnl rv" style="--d:3;background:#fff;border-top:6px solid var(--b)">
+          <div style="font-size:38px;color:var(--b);margin-bottom:12px"><span class="ic" data-i="clipboard"></span></div>
+          <h3 style="font-size:24px;font-weight:800;color:var(--ink)">Coleta Ágil Assistida</h3>
+          <p style="font-size:17px;color:var(--mut);line-height:1.5;margin-top:12px">O servidor aborda famílias e idosos no recinto, insere o CPF e seleciona as opções em segundos diretamente no smartphone corporativo.</p>
+          <div style="margin-top:20px;padding:12px;background:var(--soft);border-left:4px solid var(--b);font-size:14px;font-weight:700">Abordagem em menos de 30 segundos por cidadão.</div>
+        </div>
+        <div class="pnl rv" style="--d:4;background:#fff;border-top:6px solid var(--g)">
+          <div style="font-size:38px;color:var(--g);margin-bottom:12px"><span class="ic" data-i="refresh"></span></div>
+          <h3 style="font-size:24px;font-weight:800;color:var(--ink)">Resiliência Offline-First</h3>
+          <p style="font-size:17px;color:var(--mut);line-height:1.5;margin-top:12px">Quedas de 4G/Wi-Fi não travam a pesquisa: todas as avaliações são salvas localmente em SQLite/IndexedDB e sincronizam automaticamente ao restaurar conexão.</p>
+          <div style="margin-top:20px;padding:12px;background:#EAF5EF;border-left:4px solid var(--g);font-size:14px;font-weight:700;color:var(--gd)">Zero perda de dados mesmo em áreas remotas.</div>
+        </div>
+        <div class="pnl rv" style="--d:5;background:#fff;border-top:6px solid var(--ink)">
+          <div style="font-size:38px;color:var(--ink);margin-bottom:12px"><span class="ic" data-i="shield"></span></div>
+          <h3 style="font-size:24px;font-weight:800;color:var(--ink)">Produtividade & Auditoria</h3>
+          <p style="font-size:17px;color:var(--mut);line-height:1.5;margin-top:12px">Métricas transparentes por operador (quantidade de pesquisas, horários de pico, geolocalização do ponto de coleta) prevenindo fraudes e duplicidades.</p>
+          <div style="margin-top:20px;padding:12px;background:var(--soft);border-left:4px solid var(--ink);font-size:14px;font-weight:700">Controle total da equipe de entrevistadores.</div>
+        </div>
+      </div>
+      <div class="verdict rv" style="--d:6;margin-top:40px"><span class="ic" data-i="clock"></span><div><b>Fim da digitação manual:</b> economiza centenas de horas de servidores municipais que antes passavam semanas tabulando papéis.</div></div>
+    </section>
+
+    <!-- S9 ARQUITETURA TÉCNICA E SEGURANÇA -->
+    <section class="slide" data-sec="Arquitetura">
+      <div class="eyebrow rv">08 — Engenharia de Software</div>
+      <h2 class="title rv" style="--d:1">Arquitetura Técnica & <em>Conformidade LGPD</em></h2>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:60px;margin-top:36px;align-items:center">
+        <div class="rv" style="--d:2">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+            <div style="border:1px solid var(--line);border-left:5px solid var(--b);padding:20px">
+              <span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);font-weight:800">Camada Frontend</span>
+              <h4 style="font-size:20px;font-weight:800;margin-top:6px">Kiosk / Web / Mobile</h4>
+              <p style="font-size:15px;color:var(--mut);margin-top:6px">HTML5 + Three.js PBR nos totens, React/React Native para portabilidade e layouts de alto contraste para acessibilidade universal.</p>
+            </div>
+            <div style="border:1px solid var(--line);border-left:5px solid var(--g);padding:20px">
+              <span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);font-weight:800">Camada de Serviços</span>
+              <h4 style="font-size:20px;font-weight:800;margin-top:6px">API RESTful & WebSocket</h4>
+              <p style="font-size:15px;color:var(--mut);margin-top:6px">Processamento assíncrono de eventos com filas, endpoints de telemetria em tempo real e comunicação bidirecional segura.</p>
+            </div>
+            <div style="border:1px solid var(--line);border-left:5px solid var(--y);padding:20px">
+              <span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);font-weight:800">Persistência Central</span>
+              <h4 style="font-size:20px;font-weight:800;margin-top:6px">Banco Unificado por CPF</h4>
+              <p style="font-size:15px;color:var(--mut);margin-top:6px">PostgreSQL estruturado com tabelas de eventos, formulários, respostas e extratos de pontos integrados em chave criptográfica.</p>
+            </div>
+            <div style="border:1px solid var(--line);border-left:5px solid var(--red);padding:20px">
+              <span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);font-weight:800">Proteção de Dados</span>
+              <h4 style="font-size:20px;font-weight:800;margin-top:6px">Conformidade com LGPD</h4>
+              <p style="font-size:15px;color:var(--mut);margin-top:6px">Anonimização de dados pessoais, CPF mascarado em relatórios analíticos públicos e comunicação 100% criptografada com TLS 1.3.</p>
+            </div>
+          </div>
+        </div>
+        <div class="rv s" style="--d:3;background:var(--soft);border:1px solid var(--line);padding:30px">
+          <h4 style="font-size:18px;letter-spacing:2px;text-transform:uppercase;color:var(--ink);font-weight:900">Garantias Não Funcionais</h4>
+          <ul style="list-style:none;margin-top:20px;display:flex;flex-direction:column;gap:18px">
+            <li style="display:flex;gap:14px;align-items:flex-start">
+              <span class="ic" data-i="clock" style="color:var(--b);font-size:24px;flex:none;margin-top:2px"></span>
+              <div><strong style="font-size:17px">Tempo de Resposta &lt; 200ms</strong><p style="font-size:14px;color:var(--mut);margin-top:2px">Confirmação instantânea de voto para evitar filas no totem de autoatendimento.</p></div>
+            </li>
+            <li style="display:flex;gap:14px;align-items:flex-start">
+              <span class="ic" data-i="shield" style="color:var(--g);font-size:24px;flex:none;margin-top:2px"></span>
+              <div><strong style="font-size:17px">99,8% de Disponibilidade Operacional</strong><p style="font-size:14px;color:var(--mut);margin-top:2px">Redundância de dados local para continuidade ininterrupta durante os 4 dias de evento.</p></div>
+            </li>
+            <li style="display:flex;gap:14px;align-items:flex-start">
+              <span class="ic" data-i="touch" style="color:var(--ink);font-size:24px;flex:none;margin-top:2px"></span>
+              <div><strong style="font-size:17px">Acessibilidade WCAG 2.1 AA</strong><p style="font-size:14px;color:var(--mut);margin-top:2px">Contrastes nítidos e zonas de toque mínimas de 48x48px para idosos e munícipes com baixa visão.</p></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- S10 IMPACTO E RETORNO PÚBLICO -->
+    <section class="slide" data-sec="Impacto Social">
+      <div class="eyebrow rv">09 — Extensão & Sociedade</div>
+      <h2 class="title rv" style="--d:1">Impacto Municipal & <em>Retorno para Promissão</em></h2>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px">
+        <div class="pnl rv" style="--d:2;border-top:6px solid var(--b);background:#fff">
+          <span style="font-size:13px;letter-spacing:2px;font-weight:800;color:var(--b);text-transform:uppercase">01. Gestão Pública</span>
+          <h3 style="font-size:22px;font-weight:900;margin-top:10px">Decisões com Evidências</h3>
+          <p style="font-size:16px;color:var(--mut);line-height:1.45;margin-top:10px">A Diretoria de Turismo passa a negociar contratos de shows, segurança e banheiros com base na nota real dada pelos visitantes.</p>
+        </div>
+        <div class="pnl rv" style="--d:3;border-top:6px solid var(--g);background:#fff">
+          <span style="font-size:13px;letter-spacing:2px;font-weight:800;color:var(--g);text-transform:uppercase">02. Cidadania Ativa</span>
+          <h3 style="font-size:22px;font-weight:900;margin-top:10px">Voz ao Cidadão Comum</h3>
+          <p style="font-size:16px;color:var(--mut);line-height:1.45;margin-top:10px">Inclusão direta de pessoas idosas, munícipes rurais e famílias que não têm hábito de responder formulários complexos online.</p>
+        </div>
+        <div class="pnl rv" style="--d:4;border-top:6px solid var(--y);background:#fff">
+          <span style="font-size:13px;letter-spacing:2px;font-weight:800;color:var(--ink);text-transform:uppercase">03. Economia de Recursos</span>
+          <h3 style="font-size:22px;font-weight:900;margin-top:10px">Custo Zero de Papel</h3>
+          <p style="font-size:16px;color:var(--mut);line-height:1.45;margin-top:10px">Eliminação de impressões de centenas de questionários, pranchetas e semanas de trabalho administrativo com digitação manual.</p>
+        </div>
+        <div class="pnl rv" style="--d:5;border-top:6px solid var(--ink);background:#fff">
+          <span style="font-size:13px;letter-spacing:2px;font-weight:800;color:var(--ink);text-transform:uppercase">04. Papel do IFSP</span>
+          <h3 style="font-size:22px;font-weight:900;margin-top:10px">Extensão Tecnológica Real</h3>
+          <p style="font-size:16px;color:var(--mut);line-height:1.45;margin-top:10px">Conexão direta da sala de aula com uma demanda real de uma cidade paulista, entregando software funcional e impacto social mensurável.</p>
+        </div>
+      </div>
+      <div class="verdict rv" style="--d:6;margin-top:48px"><span class="ic" data-i="users"></span><div><b>Objetivo alcançado:</b> transformar eventos pontuais em uma <em>política contínua de inteligência pública</em> para Promissão.</div></div>
+    </section>
+
+    <!-- S11 ENCERRAMENTO -->
+    <section class="slide full" data-sec="Encerramento">
+      <div class="end">
+        <div class="end-l rv l">
+          <img id="logo-white" alt="Promissão">
+          <h2>Obrigado.</h2>
+          <p>Estamos abertos a perguntas, sugestões e considerações da banca.</p>
+          <div class="end-team"><span>Gabriel Soares</span><span>Gustavo Labos</span><span>Livia Gomes</span><span>Lucas Altino</span></div>
+        </div>
+        <div class="end-r">
+          <div class="eyebrow rv" style="--d:2">Linha do Tempo do Projeto</div>
+          <h2 class="title rv" style="--d:3">Próximas Etapas Acadêmicas</h2>
+          <div class="tl">
+            <div class="tli done rv" style="--d:4"><b>Levantamento & Regras de Negócio</b><p>Mapeamento das necessidades da população, dos servidores e da Secretaria de Turismo.</p></div>
+            <div class="tli done rv" style="--d:5"><b>Protótipo do Totem & Telas Interativas</b><p>Modelo visual do quiosque em 3D e teste prático com simulação de votos em tempo real.</p></div>
+            <div class="tli rv" style="--d:6"><b>Estruturação das Telas & Fluxo dos Usuários</b><p>Desenho detalhado de como o cidadão, o entrevistador e a gestão navegam e interagem no sistema.</p></div>
+            <div class="tli rv" style="--d:7"><b>Teste Piloto no Recinto de Eventos</b><p>Primeiro teste prático durante uma festividade oficial com a Prefeitura de Promissão.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bottombar">
+    <div>Projeto de Extensão • TSI • IFSP Campus Birigui • 2026</div>
+    <div class="dots" id="dots"></div>
+    <div class="count"><small>T: abrir totem • F: tela cheia</small><span id="cnt">01 / 11</span></div>
+  </footer>
+
+  <div id="takeover">
+    <div class="to-inner">
+      <div class="to-check"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54"/><path d="M36 62l16 16 33-36"/></svg></div>
+      <div class="to-text">
+        <div class="to-eye" id="to-eye">Totem #01 • Festa do Peão de Promissão 2026</div>
+        <h2>Nova avaliação<br>recebida</h2>
+        <div class="to-cpf" id="to-cpf">000.000.***-00</div>
+        <div class="to-chips" id="to-chips"></div>
+      </div>
+    </div>
+    <div class="to-timer"><i></i></div>
+  </div>
+</div>
+
+<script>
+/* ================= Ícones ================= */
+const ICONS = {
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.6c2.6.2 4.6 1.9 5.3 4.9"/>',
+  pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  car:'<path d="M3 16v-4l2.2-5h13.6L21 12v4"/><path d="M3 16h18v2H3z"/><circle cx="7" cy="16" r="1.6"/><circle cx="17" cy="16" r="1.6"/><path d="M5 12h14"/>',
+  home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7 14h2M11 14h2M15 14h2M7 17h2M11 17h2"/>',
+  clipboard:'<path d="M9 3h6v3H9z"/><path d="M9 4.5H5v16h14v-16h-4"/><path d="M8 11h8M8 14.5h8M8 18h5"/>',
+  doc:'<path d="M6 2h9l4 4v16H6z"/><path d="M15 2v4h4"/><path d="M9 11h7M9 14.5h7M9 18h4"/>',
+  keyboard:'<rect x="2" y="6" width="20" height="12"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  alert:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+  id:'<rect x="2" y="5" width="20" height="14"/><circle cx="8" cy="11" r="2.5"/><path d="M4.5 16.5c.6-1.8 2-2.6 3.5-2.6s2.9.8 3.5 2.6M14 10h5M14 13.5h4"/>',
+  kiosk:'<rect x="6" y="2" width="12" height="12"/><path d="M8.5 5h7v6h-7z"/><path d="M10 14v6M14 14v6M6 21h12"/>',
+  phone:'<rect x="7" y="2" width="10" height="20" rx="1.5"/><path d="M11 18h2"/>',
+  dashboard:'<rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="5"/><rect x="13" y="10" width="8" height="11"/><rect x="3" y="13" width="8" height="8"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>',
+  shield:'<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+  touch:'<path d="M9 11V5a1.5 1.5 0 0 1 3 0v6"/><path d="M12 10.5a1.5 1.5 0 0 1 3 0V12"/><path d="M15 11.5a1.5 1.5 0 0 1 3 0V15c0 3.5-2.5 6-6 6h-1c-2 0-3.2-1-4.3-2.6L4 14.5a1.5 1.5 0 0 1 2.4-1.8L9 15"/>',
+  move:'<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/>'
+};
+const icon = n => `<svg viewBox="0 0 24 24">${ICONS[n]||''}</svg>`;
+document.querySelectorAll('.ic[data-i]').forEach(e => e.innerHTML = icon(e.dataset.i));
+
+/* ================= Logos ================= */
+const crestSrc = (typeof BRASAO_PNG !== 'undefined') ? BRASAO_PNG : 'brasao-rodape.png';
+document.querySelectorAll('.crest-img').forEach(i => i.src = crestSrc);
+document.getElementById('logo-white').src = (typeof LOGO_BRANCA_PNG !== 'undefined') ? LOGO_BRANCA_PNG : 'logo_branca.png';
+
+/* ================= Escala 16:9 ================= */
+const stage = document.getElementById('stage');
+function fit(){ stage.style.setProperty('--s', Math.min(innerWidth/1920, innerHeight/1080)); }
+addEventListener('resize', fit); fit();
+
+/* ================= Multidão (slide 2) ================= */
+const PERSON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="6.5" r="4"/><path d="M4 23c0-5 3.6-8.5 8-8.5s8 3.5 8 8.5z"/></svg>';
+(function(){ const c = document.getElementById('crowd'); let h = '';
+  for (let i = 0; i < 100; i++) h += `<div class="person${i % 7 === 3 ? ' hl' : ''}" style="--i:${i}">${PERSON}</div>`;
+  c.innerHTML = h; })();
+
+/* ================= Navegação ================= */
+const slides = [...document.querySelectorAll('.slide')];
+const LIVE = 5, TOTEM_SLIDE = 4;
+let cur = 0;
+const dots = document.getElementById('dots');
+slides.forEach((_, i) => { const d = document.createElement('i'); d.onclick = () => goTo(i); dots.appendChild(d); });
+
+function chrome(){
+  [...dots.children].forEach((d, i) => { d.className = i === cur ? 'on' : (i < cur ? 'done' : ''); });
+  document.getElementById('cnt').textContent = `${String(cur+1).padStart(2,'0')} / ${String(slides.length).padStart(2,'0')}`;
+  document.getElementById('secnum').textContent = String(cur).padStart(2,'0');
+  document.getElementById('secname').textContent = slides[cur].dataset.sec;
+}
+function goTo(i, opt = {}){
+  if (i === cur || i < 0 || i >= slides.length) return;
+  const prev = slides[cur], next = slides[i], back = i < cur;
+  clearTimeout(next._t); clearTimeout(prev._t);
+  slides.forEach(s => { if (s !== prev) s.classList.remove('leaving'); s.classList.remove('back','noanim'); });
+  prev.classList.remove('active');
+  if (!opt.instant){
+    prev.classList.add('leaving'); if (back) prev.classList.add('back');
+    prev._t = setTimeout(() => prev.classList.remove('leaving','back'), 950);
+  }
+  void next.offsetWidth;
+  next.classList.add('active'); if (back) next.classList.add('back'); if (opt.instant) next.classList.add('noanim');
+  cur = i; chrome(); onEnter(i);
+}
+function onEnter(i){
+  if (i === 1) document.querySelectorAll('[data-count]').forEach(el => { el.textContent = '0'; setTimeout(() => countTo(el, 0, +el.dataset.count, 1400), 700); });
+  if (i === LIVE) regrow();
+}
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (['arrowright',' ','pagedown','enter'].includes(k)) { e.preventDefault(); goTo(cur+1); }
+  else if (['arrowleft','pageup','backspace'].includes(k)) goTo(cur-1);
+  else if (k === 'home') goTo(0);
+  else if (k === 'end') goTo(slides.length-1);
+  else if (k === 't') window.open('totem_kiosk.html', '_blank');
+  else if (k === 'f') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+  else if (k === 'd') simulate();
+  else if (k === 'r' && e.shiftKey) resetLive();
+});
+chrome();
+
+/* ================= Números animados ================= */
+const fmtInt = n => Math.round(n).toLocaleString('pt-BR');
+function countTo(el, from, to, dur = 900, fmt = fmtInt){
+  const t0 = performance.now();
+  (function step(t){ const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(from + (to - from) * e); if (p < 1) requestAnimationFrame(step); })(t0);
+}
+
+/* ================= Estado do painel ao vivo ================= */
+const KEY = 'promissao_live_state_v2';
+const COLORS = ['#C62828','#E07A1F','#C9A400','#4C9A2A','#00843D'];
+let S = JSON.parse(localStorage.getItem(KEY) || 'null') || { count:0, sumI:0, sumS:0, dist:[0,0,0,0,0], mor:0, vis:0, feed:[] };
+const seen = new Set(S.feed.map(f => f.id));
+const chartEl = document.getElementById('chart');
+chartEl.innerHTML = COLORS.map((c, i) => `<div class="col"><div class="bar" id="bar${i}" style="background:${c}"><span id="bv${i}">0</span></div></div>`).join('');
+const $ = id => document.getElementById(id);
+const one = n => n.toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 });
+
+function renderLive(prev, newId){
+  const n = S.count, avg = n ? (S.sumI + S.sumS) / (2*n) : 0;
+  countTo($('v-count'), prev ? prev.count : n, n);
+  countTo($('v-pts'), prev ? prev.count*50 : n*50, n*50);
+  countTo($('v-avg'), prev && prev.count ? (prev.sumI+prev.sumS)/(2*prev.count) : avg, avg, 900, one);
+  $('g-val').style.strokeDashoffset = 439.8 * (1 - avg/5);
+  $('v-mor').textContent = S.mor; $('v-vis').textContent = S.vis;
+  const tot = S.mor + S.vis;
+  $('b-mor').style.width = (tot ? S.mor/tot*100 : 50) + '%'; $('b-vis').style.width = (tot ? S.vis/tot*100 : 50) + '%';
+  const mx = Math.max(1, ...S.dist);
+  S.dist.forEach((v, i) => { $('bar'+i).style.height = (v/mx*88) + '%'; $('bv'+i).textContent = v; });
+  $('v-infra').textContent = n ? one(S.sumI/n) : '–'; $('b-infra').style.width = (n ? S.sumI/n/5*100 : 0) + '%';
+  $('v-seg').textContent = n ? one(S.sumS/n) : '–'; $('b-seg').style.width = (n ? S.sumS/n/5*100 : 0) + '%';
+  $('feed').innerHTML = S.feed.slice(0, 5).map(f => `
+    <li class="${f.id === newId ? 'new' : ''}"><div class="fic">${icon('kiosk')}</div>
+      <div><b>${f.cpf}</b><span class="meta">${f.perfil} • ${f.hora}</span></div>
+      <div class="nts"><span>Infra ${f.i}</span><span>Seg. ${f.s}</span></div></li>`).join('');
+  $('empty').classList.toggle('hide', n > 0);
+}
+function regrow(){
+  for (let i = 0; i < 5; i++) $('bar'+i).style.height = '0%';
+  $('g-val').style.strokeDashoffset = 439.8; $('b-infra').style.width = '0%'; $('b-seg').style.width = '0%';
+  setTimeout(() => renderLive(null), 650);
+}
+function resetLive(){ S = { count:0, sumI:0, sumS:0, dist:[0,0,0,0,0], mor:0, vis:0, feed:[] }; seen.clear(); localStorage.setItem(KEY, JSON.stringify(S)); renderLive(null); }
+renderLive(null);
+
+const maskCpf = c => { c = (c || '').padEnd(11, '0'); return `${c.slice(0,3)}.${c.slice(3,6)}.***-${c.slice(9,11)}`; };
+
+function applyData(p){
+  const prev = JSON.parse(JSON.stringify(S));
+  const i = +p.notaInfra || 5, s = +p.notaSeguranca || 5;
+  S.count++; S.sumI += i; S.sumS += s; S.dist[i-1]++; S.dist[s-1]++;
+  if ((p.perfil || '').startsWith('Morador')) S.mor++; else S.vis++;
+  const id = p.timestamp + '|' + p.cpf;
+  S.feed.unshift({ id, cpf: maskCpf(p.cpf), perfil: (p.perfil || '').startsWith('Morador') ? 'Morador' : 'Visitante', hora: new Date(p.timestamp).toLocaleTimeString('pt-BR'), i, s });
+  S.feed = S.feed.slice(0, 20);
+  localStorage.setItem(KEY, JSON.stringify(S));
+  renderLive(prev, id);
+  ['k-count','k-avg','k-split','k-pts'].forEach(k => { $(k).classList.add('flash'); setTimeout(() => $(k).classList.remove('flash'), 1400); });
+}
+
+/* ================= Tomada de tela ao receber do totem ================= */
+const queue = []; let busy = false;
+function handleIncoming(p){
+  if (!p || !p.cpf) return;
+  const id = p.timestamp + '|' + p.cpf;
+  if (seen.has(id)) return; seen.add(id);
+  queue.push(p); if (!busy) next();
+}
+function next(){
+  const p = queue.shift(); if (!p) { busy = false; return; }
+  busy = true;
+  const to = $('takeover');
+  $('to-cpf').textContent = maskCpf(p.cpf);
+  const mor = (p.perfil || '').startsWith('Morador');
+  $('to-chips').innerHTML = `<span>${mor ? 'Morador de Promissão' : 'Visitante / Turista'}</span><span>Infraestrutura: ${p.notaInfra}/5</span><span>Segurança: ${p.notaSeguranca}/5</span><span class="pts">+50 pontos</span>`;
+  to.classList.remove('out'); void to.offsetWidth; to.classList.add('in');
+  totemFlash();
+  setTimeout(() => goTo(LIVE, { instant: true }), 2300);
+  setTimeout(() => { to.classList.remove('in'); void to.offsetWidth; to.classList.add('out'); }, 2600);
+  setTimeout(() => applyData(p), 3000);
+  setTimeout(() => { to.classList.remove('out'); next(); }, 4200);
+}
+function simulate(){
+  const cpf = String(Math.floor(1e10 + Math.random()*9e10)).slice(0, 11);
+  handleIncoming({ cpf, perfil: Math.random() < .65 ? 'Morador de Promissão' : 'Visitante / Turista Regional',
+    notaInfra: 1 + Math.floor(Math.random()*5), notaSeguranca: 2 + Math.floor(Math.random()*4), timestamp: new Date().toISOString(), origem: 'Simulação' });
+}
+try { new BroadcastChannel('promissao_eventos_channel').onmessage = e => handleIncoming(e.data); } catch(e) {}
+addEventListener('storage', e => {
+  if (e.key === 'promissao_feedback_trigger') { const l = localStorage.getItem('promissao_last_feedback'); if (l) handleIncoming(JSON.parse(l)); }
+});
+
+/* ================= Totem 3D (Three.js) ================= */
+let screenMat = null, flashT = 0;
+function totemFlash(){ flashT = performance.now(); }
+(function init3D(){
+  const host = $('totem3d');
+  if (!window.THREE || !THREE.OBJLoader || !window.TOTEM_OBJ_TEXT) { $('v-fallback').style.display = 'flex'; return; }
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch(e) { $('v-fallback').style.display = 'flex'; return; }
+  const W = host.clientWidth || 1040, H = host.clientHeight || 912;
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(W, H);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  host.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  if (THREE.RoomEnvironment) { const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new THREE.RoomEnvironment(), 0.04).texture; }
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb9c3cd, 0.45));
+  const key = new THREE.DirectionalLight(0xffffff, 1.2);
+  key.position.set(600, 1100, 700); key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
+  Object.assign(key.shadow.camera, { left:-700, right:700, top:700, bottom:-700, near:10, far:4000 });
+  key.shadow.bias = -0.0004; key.shadow.radius = 5; scene.add(key);
+  const rim = new THREE.DirectionalLight(0xdfe9ff, 0.45); rim.position.set(-800, 600, -600); scene.add(rim);
+
+  // Paleta institucional aplicada às peças do modelo (as cores originais do CAD eram de identificação)
+  const PAL = {
+    '33,138,33':   { color:'#EEF1F4', r:.55, m:.05 },   // painéis principais
+    '207,79,0':    { color:'#00843D', r:.45, m:.10 },   // lateral – verde Promissão
+    '46,138,87':   { color:'#005A9C', r:.45, m:.10 },   // faixa – azul Promissão
+    '191,191,191': { color:'#A9B1BA', r:.30, m:.75 },   // estrutura metálica
+    '224,0,201':   { color:'#2B3038', r:.60, m:.30 },   // base / pé
+    '128,0,128':   { color:'#E7EBEF', r:.50, m:.05 },   // cabeça do totem
+    '255,255,255': { color:'#FFFFFF', r:.40, m:0 },
+    '131,88,197':  { color:'#1C222B', r:.50, m:.20 },   // moldura
+    '5,5,5':       { color:'#0E1218', r:.40, m:.20 },   // bezel
+  };
+  function conv(m){
+    const name = m && m.name;
+    if (name === '47,159,195') {
+      screenMat = new THREE.MeshStandardMaterial({ color:'#0A2A4A', emissive:'#2B7FD0', emissiveIntensity:.6, roughness:.15, metalness:.1, side:THREE.DoubleSide });
+      return screenMat;
+    }
+    const p = PAL[name] || { color:'#C9CFD6', r:.5, m:.1 };
+    return new THREE.MeshStandardMaterial({ color:p.color, roughness:p.r, metalness:p.m, flatShading:true, side:THREE.DoubleSide });
+  }
+
+  const obj = new THREE.OBJLoader().parse(window.TOTEM_OBJ_TEXT);
+  obj.traverse(c => { if (c.isMesh) {
+    if (!c.geometry.attributes.normal) c.geometry.computeVertexNormals();
+    c.material = Array.isArray(c.material) ? c.material.map(conv) : conv(c.material);
+    c.castShadow = true; c.receiveShadow = true; } });
+  // O eixo vertical do modelo é -Z (tela no topo): rotação de +90° em X deixa o totem de pé
+  obj.rotation.x = Math.PI / 2;
+  obj.updateMatrixWorld(true);
+  let box = new THREE.Box3().setFromObject(obj);
+  const ctr = box.getCenter(new THREE.Vector3());
+  obj.position.set(-ctr.x, -box.min.y, -ctr.z);
+  scene.add(obj);
+  obj.updateMatrixWorld(true);
+  box = new THREE.Box3().setFromObject(obj);
+  const size = box.getSize(new THREE.Vector3()), Ht = size.y, R = Math.max(size.x, size.z);
+
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000), new THREE.ShadowMaterial({ opacity: .18 }));
+  ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; scene.add(ground);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(R*0.85, R*0.88, 96), new THREE.MeshBasicMaterial({ color:'#00843D', transparent:true, opacity:.55 }));
+  ring.rotation.x = -Math.PI/2; ring.position.y = 0.5; scene.add(ring);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(R*0.85, 96), new THREE.MeshBasicMaterial({ color:'#ffffff', transparent:true, opacity:.5 }));
+  disc.rotation.x = -Math.PI/2; disc.position.y = 0.3; scene.add(disc);
+
+  const camera = new THREE.PerspectiveCamera(30, W/H, 1, 20000);
+  const dist = Ht / (2*Math.tan(THREE.MathUtils.degToRad(15))) * 1.25;
+  const target = new THREE.Vector3(0, Ht*0.48, 0);
+  camera.position.copy(target).add(new THREE.Vector3(0.62, 0.22, 0.75).normalize().multiplyScalar(dist));
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.target.copy(target); controls.enableDamping = true; controls.dampingFactor = .07; controls.enablePan = false;
+  controls.autoRotate = true; controls.autoRotateSpeed = 1.4;
+  controls.minPolarAngle = Math.PI*0.32; controls.maxPolarAngle = Math.PI*0.50;  // trava: sempre de pé
+  controls.minDistance = dist*0.6; controls.maxDistance = dist*1.5;
+  controls.update();
+
+  $('spinBtn').onclick = () => { controls.autoRotate = !controls.autoRotate; $('spinBtn').textContent = controls.autoRotate ? 'Pausar rotação' : 'Girar automaticamente'; };
+
+  const base = new THREE.Color('#2B7FD0'), ok = new THREE.Color('#22C55E');
+  (function loop(){
+    requestAnimationFrame(loop);
+    if (screenMat) {
+      const k = Math.max(0, 1 - (performance.now() - flashT) / 2500);
+      screenMat.emissive.copy(base).lerp(ok, k); screenMat.emissiveIntensity = .6 + k*.9;
+    }
+    if (cur !== TOTEM_SLIDE && !slides[TOTEM_SLIDE].classList.contains('leaving')) return;
+    controls.update(); renderer.render(scene, camera);
+  })();
+})();
+</script>
+</body>
+</html>

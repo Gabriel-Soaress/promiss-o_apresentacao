@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/apresentacao_tecnica_promissao.html" },
+    { "source": "/slide", "destination": "/apresentacao_tecnica_promissao.html" },
+    { "source": "/slides", "destination": "/apresentacao_tecnica_promissao.html" },
+    { "source": "/totem", "destination": "/totem_kiosk.html" },
+    { "source": "/totem_kiosk", "destination": "/totem_kiosk.html" }
+  ]
+}

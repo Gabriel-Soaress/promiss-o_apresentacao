@@ -1,0 +1,7 @@
+# Arquivos acadêmicos locais pesados
+*.docx
+*.pdf
+
+# Temporários
+*.tmp
+*.log

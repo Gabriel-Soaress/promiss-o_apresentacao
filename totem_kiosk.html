@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal de Autoatendimento Oficial - Prefeitura Municipal de Promissão</title>
+  <script src="logos_data.js"></script>
+  <style>
+    :root {
+      --promissao-green: #00843D;
+      --promissao-green-dark: #00602B;
+      --promissao-blue: #005A9C;
+      --promissao-gold: #FFD100;
+      --bg-kiosk: #F4F6F8;
+      --surface-white: #FFFFFF;
+      --border-color: #D1D5DB;
+      --text-main: #1F2937;
+      --text-muted: #4B5563;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    }
+
+    body {
+      background: var(--bg-kiosk);
+      color: var(--text-main);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cabeçalho Institucional Oficial */
+    header.kiosk-header {
+      height: 100px;
+      background: var(--surface-white);
+      border-bottom: 4px solid var(--promissao-green);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 45px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .kiosk-brand {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .kiosk-crest {
+      height: 70px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .kiosk-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kiosk-inst-sub {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+    }
+
+    .kiosk-inst-main {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: var(--promissao-blue);
+    }
+
+    .kiosk-event-tag {
+      text-align: right;
+    }
+
+    .event-badge {
+      display: inline-block;
+      background: var(--promissao-green);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .event-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-top: 4px;
+    }
+
+    /* Barra de Progresso dos Passos */
+    .step-track-container {
+      height: 50px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 45px;
+    }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .step-indicator.active {
+      color: var(--promissao-blue);
+    }
+
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      background: #E5E7EB;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .step-indicator.active .step-circle {
+      background: var(--promissao-blue);
+      color: #FFFFFF;
+    }
+
+    .step-indicator.done .step-circle {
+      background: var(--promissao-green);
+      color: #FFFFFF;
+    }
+
+    /* Área Principal - Telas Sequenciais */
+    main.kiosk-body {
+      flex: 1;
+      position: relative;
+      padding: 30px 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kiosk-step-view {
+      position: absolute;
+      width: calc(100% - 90px);
+      max-width: 950px;
+      height: calc(100% - 60px);
+      background: var(--surface-white);
+      border: 1px solid var(--border-color);
+      border-top: 5px solid var(--promissao-blue);
+      padding: 35px 45px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(40px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .kiosk-step-view.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .step-header {
+      border-bottom: 2px solid var(--bg-kiosk);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    .step-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--promissao-blue);
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .step-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* PASSO 1: CPF */
+    .cpf-container-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 30px;
+      align-items: center;
+      flex: 1;
+    }
+
+    .cpf-display-box {
+      background: #F9FAFB;
+      border: 2px solid var(--border-color);
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: var(--promissao-blue);
+      margin-bottom: 20px;
+    }
+
+    .numpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .num-btn {
+      background: #FFFFFF;
+      border: 2px solid var(--border-color);
+      height: 60px;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s;
+    }
+
+    .num-btn:active {
+      background: #E5E7EB;
+      border-color: var(--promissao-blue);
+    }
+
+    .num-btn.btn-clear {
+      color: #DC2626;
+      font-size: 14px;
+      font-weight: 800;
+      background: #FEF2F2;
+      border-color: #FCA5A5;
+    }
+
+    .num-btn.btn-demo {
+      color: var(--promissao-green);
+      font-size: 14px;
+      font-weight: 800;
+      background: #F0FDF4;
+      border-color: #86EFAC;
+    }
+
+    /* PASSO 2: Perfil do Cidadão */
+    .choices-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      flex: 1;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .choice-card-btn {
+      background: #FFFFFF;
+      border: 2px solid var(--border-color);
+      height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .choice-card-btn:hover {
+      border-color: var(--promissao-blue);
+    }
+
+    .choice-card-btn.selected {
+      background: #EFF6FF;
+      border-color: var(--promissao-blue);
+      border-width: 3px;
+    }
+
+    .choice-icon {
+      font-size: 48px;
+    }
+
+    .choice-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* PASSO 3 & 4: Escalas de Avaliação por Ícones */
+    .ratings-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      flex: 1;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .rating-card-btn {
+      background: #FFFFFF;
+      border: 2px solid var(--border-color);
+      height: 190px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .rating-card-btn:hover {
+      border-color: var(--promissao-green);
+    }
+
+    .rating-card-btn.selected {
+      background: #F0FDF4;
+      border-color: var(--promissao-green);
+      border-width: 3px;
+    }
+
+    .rating-emoji {
+      font-size: 46px;
+    }
+
+    .rating-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .rating-sub {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Botões de Ação Inferior do Passo */
+    .step-actions-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+    }
+
+    .btn-step-prev {
+      background: #FFFFFF;
+      border: 2px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 14px 28px;
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .btn-step-next {
+      background: var(--promissao-green);
+      border: none;
+      color: #FFFFFF;
+      padding: 16px 36px;
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-step-next:hover {
+      background: var(--promissao-green-dark);
+    }
+
+    /* Rodapé do Totem */
+    footer.kiosk-footer {
+      height: 50px;
+      background: var(--surface-white);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 45px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Tela de Sucesso Final com Auto-Reset */
+    #success-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 90, 156, 0.96);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    #success-screen.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .success-modal {
+      background: #FFFFFF;
+      color: var(--text-main);
+      padding: 50px;
+      max-width: 680px;
+      width: 90%;
+      text-align: center;
+      border-top: 8px solid var(--promissao-green);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+    }
+
+    .success-icon-badge {
+      width: 70px;
+      height: 70px;
+      background: #F0FDF4;
+      border: 3px solid var(--promissao-green);
+      color: var(--promissao-green);
+      font-size: 38px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px auto;
+    }
+
+    .success-h1 {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--promissao-blue);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .success-txt {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 25px;
+    }
+
+    .points-callout {
+      background: #F0FDF4;
+      border: 2px solid var(--promissao-green);
+      color: var(--promissao-green-dark);
+      padding: 12px 24px;
+      font-size: 18px;
+      font-weight: 900;
+      display: inline-block;
+      margin-bottom: 25px;
+    }
+
+    .reset-timer-track {
+      height: 6px;
+      background: #E5E7EB;
+      width: 100%;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+
+    .reset-timer-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--promissao-green);
+      transition: width 3s linear;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabeçalho Oficial -->
+  <header class="kiosk-header">
+    <div class="kiosk-brand">
+      <img id="kiosk-crest-img" class="kiosk-crest" alt="Brasão de Promissão">
+      <div class="kiosk-titles">
+        <span class="kiosk-inst-sub">Prefeitura Municipal de Promissão</span>
+        <span class="kiosk-inst-main">TERMINAL DE AVALIAÇÃO CIDADÃ</span>
+      </div>
+    </div>
+    <div class="kiosk-event-tag">
+      <span class="event-badge">Terminal Oficial #01</span>
+      <div class="event-name">Festa do Peão de Promissão 2026</div>
+    </div>
+  </header>
+
+  <!-- Barra de Passos -->
+  <div class="step-track-container">
+    <div class="step-indicator active" id="track-1"><div class="step-circle">1</div> Identificação (CPF)</div>
+    <div class="step-indicator" id="track-2"><div class="step-circle">2</div> Vínculo Territorial</div>
+    <div class="step-indicator" id="track-3"><div class="step-circle">3</div> Infraestrutura</div>
+    <div class="step-indicator" id="track-4"><div class="step-circle">4</div> Segurança & Shows</div>
+  </div>
+
+  <!-- Corpo Principal com Telas Dinâmicas -->
+  <main class="kiosk-body">
+
+    <!-- PASSO 1: Identificação por CPF -->
+    <section class="kiosk-step-view active" id="view-step-1">
+      <div class="step-header">
+        <h2 class="step-title">Passo 1: Identificação do Participante</h2>
+        <p class="step-desc">Digite apenas o seu CPF para acumular seus pontos de cidadão. Sem telas longas de cadastro.</p>
+      </div>
+
+      <div class="cpf-container-layout">
+        <div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px;">SEU DOCUMENTO (CPF):</div>
+          <div class="cpf-display-box" id="cpf-screen-val">___.___.___-__</div>
+          <div style="padding: 15px; background: #EFF6FF; border-left: 4px solid var(--promissao-blue); font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+            💡 <strong>Pontuação Inteligente:</strong> Seus pontos serão acumulados no seu CPF. Ao instalar o app da cidade no futuro, seus pontos serão creditados automaticamente.
+          </div>
+        </div>
+
+        <div>
+          <div class="numpad-grid">
+            <button class="num-btn" onclick="pressKioskNum('1')">1</button>
+            <button class="num-btn" onclick="pressKioskNum('2')">2</button>
+            <button class="num-btn" onclick="pressKioskNum('3')">3</button>
+            <button class="num-btn" onclick="pressKioskNum('4')">4</button>
+            <button class="num-btn" onclick="pressKioskNum('5')">5</button>
+            <button class="num-btn" onclick="pressKioskNum('6')">6</button>
+            <button class="num-btn" onclick="pressKioskNum('7')">7</button>
+            <button class="num-btn" onclick="pressKioskNum('8')">8</button>
+            <button class="num-btn" onclick="pressKioskNum('9')">9</button>
+            <button class="num-btn btn-clear" onclick="clearKioskCpf()">LIMPAR</button>
+            <button class="num-btn" onclick="pressKioskNum('0')">0</button>
+            <button class="num-btn btn-demo" onclick="fillKioskDemoCpf()">DEMO</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-actions-footer">
+        <span style="font-size: 12px; color: var(--text-muted);">🔒 Protegido pela Lei Geral de Proteção de Dados (LGPD)</span>
+        <button class="btn-step-next" onclick="goToStep(2)">Avançar para Perguntas ▶</button>
+      </div>
+    </section>
+
+    <!-- PASSO 2: Pergunta 1 - Vínculo Territorial -->
+    <section class="kiosk-step-view" id="view-step-2">
+      <div class="step-header">
+        <h2 class="step-title">Passo 2: Vínculo com Promissão/SP</h2>
+        <p class="step-desc">Selecione uma das opções abaixo com um simples toque na tela.</p>
+      </div>
+
+      <div class="choices-grid-2">
+        <button class="choice-card-btn selected" id="opt-resident-1" onclick="selectResident('Morador de Promissão', this)">
+          <div class="choice-icon">🏡</div>
+          <div class="choice-text">Sou Morador de Promissão</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Munícipe da área urbana ou rural</div>
+        </button>
+
+        <button class="choice-card-btn" id="opt-resident-2" onclick="selectResident('Visitante / Turista Regional', this)">
+          <div class="choice-icon">🚗</div>
+          <div class="choice-text">Sou Visitante / Turista</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Vim de cidades vizinhas ou outro estado</div>
+        </button>
+      </div>
+
+      <div class="step-actions-footer">
+        <button class="btn-step-prev" onclick="goToStep(1)">◀ Voltar</button>
+        <button class="btn-step-next" onclick="goToStep(3)">Próxima Pergunta ▶</button>
+      </div>
+    </section>
+
+    <!-- PASSO 3: Pergunta 2 - Limpeza e Infraestrutura -->
+    <section class="kiosk-step-view" id="view-step-3">
+      <div class="step-header">
+        <h2 class="step-title">Passo 3: Infraestrutura e Banheiros</h2>
+        <p class="step-desc">Como você avalia a limpeza dos sanitários, praça de alimentação e sinalização do recinto?</p>
+      </div>
+
+      <div class="ratings-grid-5">
+        <button class="rating-card-btn" onclick="selectRatingQ2(1, this)">
+          <div class="rating-emoji">😡</div>
+          <div class="rating-title">Péssimo</div>
+          <div class="rating-sub">Nota 1.0</div>
+        </button>
+        <button class="rating-card-btn" onclick="selectRatingQ2(2, this)">
+          <div class="rating-emoji">🙁</div>
+          <div class="rating-title">Ruim</div>
+          <div class="rating-sub">Nota 2.0</div>
+        </button>
+        <button class="rating-card-btn" onclick="selectRatingQ2(3, this)">
+          <div class="rating-emoji">😐</div>
+          <div class="rating-title">Regular</div>
+          <div class="rating-sub">Nota 3.0</div>
+        </button>
+        <button class="rating-card-btn" onclick="selectRatingQ2(4, this)">
+          <div class="rating-emoji">🙂</div>
+          <div class="rating-title">Bom</div>
+          <div class="rating-sub">Nota 4.0</div>
+        </button>
+        <button class="rating-card-btn selected" onclick="selectRatingQ2(5, this)">
+          <div class="rating-emoji">😄</div>
+          <div class="rating-title">Excelente</div>
+          <div class="rating-sub">Nota 5.0</div>
+        </button>
+      </div>
+
+      <div class="step-actions-footer">
+        <button class="btn-step-prev" onclick="goToStep(2)">◀ Voltar</button>
+        <button class="btn-step-next" onclick="goToStep(4)">Próxima Pergunta ▶</button>
+      </div>
+    </section>
+
+    <!-- PASSO 4: Pergunta 3 - Segurança e Organização Geral -->
+    <section class="kiosk-step-view" id="view-step-4">
+      <div class="step-header">
+        <h2 class="step-title">Passo 4: Segurança e Qualidade dos Shows</h2>
+        <p class="step-desc">Como você avalia o policiamento, a segurança privada e as atrações musicais de hoje?</p>
+      </div>
+
+      <div class="ratings-grid-5">
+        <button class="rating-card-btn" onclick="selectRatingQ3(1, this)">
+          <div class="rating-emoji">😡</div>
+          <div class="rating-title">Péssimo</div>
+          <div class="rating-sub">Nota 1.0</div>
+        </button>
+        <button class="rating-card-btn" onclick="selectRatingQ3(2, this)">
+          <div class="rating-emoji">🙁</div>
+          <div class="rating-title">Ruim</div>
+          <div class="rating-sub">Nota 2.0</div>
+        </button>
+        <button class="rating-card-btn" onclick="selectRatingQ3(3, this)">
+          <div class="rating-emoji">😐</div>
+          <div class="rating-title">Regular</div>
+          <div class="rating-sub">Nota 3.0</div>
+        </button>
+        <button class="rating-card-btn" onclick="selectRatingQ3(4, this)">
+          <div class="rating-emoji">🙂</div>
+          <div class="rating-title">Bom</div>
+          <div class="rating-sub">Nota 4.0</div>
+        </button>
+        <button class="rating-card-btn selected" onclick="selectRatingQ3(5, this)">
+          <div class="rating-emoji">😄</div>
+          <div class="rating-title">Excelente</div>
+          <div class="rating-sub">Nota 5.0</div>
+        </button>
+      </div>
+
+      <div class="step-actions-footer">
+        <button class="btn-step-prev" onclick="goToStep(3)">◀ Voltar</button>
+        <button class="btn-step-next" style="background: var(--promissao-green-dark);" onclick="finishKioskSubmission()">
+          <span>CONCLUIR E ENVIAR AVALIAÇÃO</span>
+          <span style="background: rgba(255,255,255,0.2); padding: 3px 8px; font-size: 12px;">+50 PTS</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Rodapé Institucional -->
+  <footer class="kiosk-footer">
+    <div>Secretaria Municipal de Turismo • Diretoria de Eventos e Cultura de Promissão</div>
+    <div>Terminal Nº 01 • Conexão em Tempo Real com o Painel de Gestão</div>
+  </footer>
+
+  <!-- Tela de Sucesso Final com Auto-Reset -->
+  <div id="success-screen">
+    <div class="success-modal">
+      <div class="success-icon-badge">✓</div>
+      <h1 class="success-h1">AVALIAÇÃO CONCLUÍDA COM SUCESSO!</h1>
+      <p class="success-txt">
+        A Prefeitura Municipal de Promissão agradece sua contribuição cívica. Suas respostas já foram consolidadas nos indicadores oficiais da cidade.
+      </p>
+      <div class="points-callout">
+        ★ +50 PONTOS CIDADÃO REGISTRADOS NO SEU CPF
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted);">
+        Reinicializando terminal para o próximo participante em 3 segundos...
+      </p>
+      <div class="reset-timer-track">
+        <div class="reset-timer-fill" id="reset-fill-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Inserir Brasão Oficial
+    if (typeof BRASAO_PNG !== 'undefined') {
+      document.getElementById('kiosk-crest-img').src = BRASAO_PNG;
+    } else {
+      document.getElementById('kiosk-crest-img').src = 'brasao-rodape.png';
+    }
+
+    // Estado da Coleta
+    let currentStep = 1;
+    let kioskCpf = "";
+    let dataResident = "Morador de Promissão";
+    let dataQ2 = 5;
+    let dataQ3 = 5;
+
+    function renderKioskCpf() {
+      let d = kioskCpf.padEnd(11, "_");
+      let fmt = `${d.substring(0,3)}.${d.substring(3,6)}.${d.substring(6,9)}-${d.substring(9,11)}`;
+      document.getElementById('cpf-screen-val').textContent = fmt;
+    }
+
+    function pressKioskNum(num) {
+      if (kioskCpf.length < 11) {
+        kioskCpf += num;
+        renderKioskCpf();
+      }
+    }
+
+    function clearKioskCpf() {
+      kioskCpf = "";
+      renderKioskCpf();
+    }
+
+    function fillKioskDemoCpf() {
+      kioskCpf = "48192038194";
+      renderKioskCpf();
+    }
+
+    function selectResident(val, el) {
+      dataResident = val;
+      document.querySelectorAll('.choice-card-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function selectRatingQ2(val, el) {
+      dataQ2 = val;
+      document.querySelectorAll('#view-step-3 .rating-card-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function selectRatingQ3(val, el) {
+      dataQ3 = val;
+      document.querySelectorAll('#view-step-4 .rating-card-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function goToStep(step) {
+      if (step === 2 && kioskCpf.length < 3) {
+        fillKioskDemoCpf();
+      }
+
+      currentStep = step;
+      document.querySelectorAll('.kiosk-step-view').forEach((view, idx) => {
+        view.classList.toggle('active', idx === (step - 1));
+      });
+
+      // Atualizar trilha de passos
+      for (let i = 1; i <= 4; i++) {
+        const trackEl = document.getElementById(`track-${i}`);
+        trackEl.classList.remove('active', 'done');
+        if (i === step) {
+          trackEl.classList.add('active');
+        } else if (i < step) {
+          trackEl.classList.add('done');
+        }
+      }
+    }
+
+    function finishKioskSubmission() {
+      const payload = {
+        cpf: kioskCpf || "48192038194",
+        perfil: dataResident,
+        notaInfra: dataQ2,
+        notaSeguranca: dataQ3,
+        notaGeral: Math.round(((dataQ2 + dataQ3) / 2) * 10) / 10,
+        timestamp: new Date().toISOString(),
+        origem: "Totem Físico #01 (Praça Central)"
+      };
+
+      // Disparar sincronização via BroadcastChannel e localStorage
+      const bc = new BroadcastChannel('promissao_eventos_channel');
+      bc.postMessage(payload);
+      localStorage.setItem('promissao_last_feedback', JSON.stringify(payload));
+      localStorage.setItem('promissao_feedback_trigger', Date.now().toString());
+
+      // Exibir Tela de Sucesso
+      const modal = document.getElementById('success-screen');
+      const bar = document.getElementById('reset-fill-bar');
+      modal.classList.add('active');
+      bar.style.width = '100%';
+
+      setTimeout(() => {
+        bar.style.width = '0%';
+      }, 50);
+
+      // Auto-Reset completo em 3 segundos
+      setTimeout(() => {
+        modal.classList.remove('active');
+        clearKioskCpf();
+        dataResident = "Morador de Promissão";
+        dataQ2 = 5;
+        dataQ3 = 5;
+        goToStep(1);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

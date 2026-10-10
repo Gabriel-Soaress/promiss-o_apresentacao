@@ -143,21 +143,23 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
 .hub .flowp{stroke:var(--b);stroke-width:3;stroke-dasharray:10 14;animation:dash 1.1s linear infinite}
 .hub .flowp.g{stroke:var(--g)}
 @keyframes dash{to{stroke-dashoffset:-48}}
-.core{position:absolute;left:480px;top:330px;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:50%;background:var(--b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 16px rgba(0,90,156,.14),0 0 0 32px rgba(0,90,156,.06);z-index:3;text-align:center}
-.core .core-icon{width:56px;height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
-.core .core-icon svg{width:100%;height:100%;stroke:#fff}
-.core b{font-size:38px;font-weight:900;letter-spacing:3px;line-height:1}
-.core span{font-size:13px;letter-spacing:2px;text-transform:uppercase;opacity:.85;margin-top:8px;font-weight:700}
-.pulse{position:absolute;left:480px;top:330px;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:50%;border:2px solid var(--b);animation:ping 2.4s ease-out infinite;pointer-events:none}
+.core{position:absolute;left:480px;top:330px;width:250px;height:250px;margin:-125px 0 0 -125px;border-radius:50%;background:var(--b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 16px rgba(0,90,156,.14),0 0 0 32px rgba(0,90,156,.06);z-index:3;text-align:center}
+.core .core-icon{width:70px;height:70px;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.core .core-icon .ic{width:70px;height:70px;font-size:70px}
+.core .core-icon svg{width:100%;height:100%;stroke:#fff;stroke-width:2}
+.core b{font-size:42px;font-weight:900;letter-spacing:3px;line-height:1}
+.core span{font-size:13px;letter-spacing:2px;text-transform:uppercase;opacity:.9;margin-top:8px;font-weight:700}
+.pulse{position:absolute;left:480px;top:330px;width:250px;height:250px;margin:-125px 0 0 -125px;border-radius:50%;border:2px solid var(--b);animation:ping 2.4s ease-out infinite;pointer-events:none}
 @keyframes ping{from{transform:scale(1);opacity:.6}to{transform:scale(1.9);opacity:0}}
-.hnode{position:absolute;width:270px;margin-left:-135px;background:#fff;border:1px solid var(--line);border-top:6px solid var(--b);padding:26px 20px 22px;text-align:center;z-index:3;box-shadow:0 14px 32px rgba(15,27,45,.09);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hnode{position:absolute;width:280px;margin-left:-140px;background:#fff;border:1px solid var(--line);border-top:6px solid var(--b);padding:24px 20px 22px;text-align:center;z-index:3;box-shadow:0 14px 32px rgba(15,27,45,.09);display:flex;flex-direction:column;align-items:center;justify-content:center}
 .hnode.g{border-top-color:var(--g)}
 .hnode.k{border-top-color:var(--ink)}
-.hnode .h-icon{width:54px;height:54px;margin-bottom:14px;display:flex;align-items:center;justify-content:center}
-.hnode .h-icon svg{width:100%;height:100%;stroke:var(--b)}
+.hnode .h-icon{width:68px;height:68px;margin-bottom:14px;display:flex;align-items:center;justify-content:center}
+.hnode .h-icon .ic{width:68px;height:68px;font-size:68px}
+.hnode .h-icon svg{width:100%;height:100%;stroke:var(--b);stroke-width:2}
 .hnode.g .h-icon svg{stroke:var(--g)}
 .hnode.k .h-icon svg{stroke:var(--ink)}
-.hnode .h-title{font-size:23px;line-height:1.2;font-weight:900;color:var(--ink);margin-bottom:6px;display:block}
+.hnode .h-title{font-size:24px;line-height:1.2;font-weight:900;color:var(--ink);margin-bottom:6px;display:block}
 .hnode .h-sub{font-size:15px;line-height:1.3;color:var(--mut);display:block;font-weight:600}
 .sol-list{display:flex;flex-direction:column;justify-content:center}
 .srow{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:26px 0;border-bottom:1px solid var(--line)}
@@ -183,12 +185,12 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
 .feat .fi{width:64px;height:64px;background:#EAF5EF;color:var(--g);display:flex;align-items:center;justify-content:center;font-size:34px}
 .feat b{font-size:22px}
 .feat p{font-size:17px;color:var(--mut);margin-top:3px}
-.journey{margin-top:34px}
-.journey h4{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
-.jsteps{display:flex;align-items:center}
-.js{flex:1;background:var(--soft);border:1px solid var(--line);padding:14px 8px;text-align:center;font-size:14px;font-weight:800;color:var(--ink)}
-.js.end{background:var(--g);color:#FFFFFF !important;border-color:var(--gd);box-shadow:0 2px 8px rgba(0,132,61,0.25)}
-.jarr{width:18px;height:2px;background:var(--b);flex:none}
+.journey{margin-top:28px;background:var(--soft);border:1px solid var(--line);border-left:5px solid var(--g);padding:18px 20px}
+.journey h4{font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--mut);margin-bottom:12px;font-weight:800}
+.jsteps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.js{background:#fff;border:1px solid var(--line);padding:12px 6px;text-align:center;font-size:13px;font-weight:800;color:var(--ink);display:flex;align-items:center;justify-content:center}
+.js.end{background:var(--g);color:#FFFFFF !important;border-color:var(--gd);box-shadow:0 3px 8px rgba(0,132,61,0.30);font-weight:900}
+.jarr{display:none}
 
 /* ---------- S6 Ao vivo ---------- */
 .live-head{display:flex;justify-content:space-between;align-items:flex-end}
@@ -439,14 +441,10 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
             <h4>Jornada do munícipe no totem (menos de 20 segundos)</h4>
             <div class="jsteps">
               <div class="js">1. CPF</div>
-              <i class="jarr"></i>
               <div class="js">2. Vínculo</div>
-              <i class="jarr"></i>
               <div class="js">3. Infra</div>
-              <i class="jarr"></i>
               <div class="js">4. Segurança</div>
-              <i class="jarr"></i>
-              <div class="js end">5. Concluído (+50 pts)</div>
+              <div class="js end">5. Sucesso (+50 pts)</div>
             </div>
           </div>
         </div>

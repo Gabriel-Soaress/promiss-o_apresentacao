@@ -24,11 +24,16 @@ app.get(['/totem', '/totem_kiosk'], (req, res) => {
   res.sendFile(path.join(__dirname, 'totem_kiosk.html'));
 });
 
+app.get(['/app', '/avaliar', '/mobile'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'app_cidadao.html'));
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n======================================================`);
   console.log(`🚀 Servidor Promissão rodando na porta ${PORT}`);
   console.log(`📊 Apresentação: http://localhost:${PORT}/slides`);
-  console.log(`📱 Totem Kiosk:  http://localhost:${PORT}/totem`);
+  console.log(`🖥️ Totem Kiosk:  http://localhost:${PORT}/totem`);
+  console.log(`📱 App Cidadão:  http://localhost:${PORT}/app`);
   console.log(`🗄️ Banco de Dados: Neon PostgreSQL Conectado`);
   console.log(`======================================================\n`);
 });

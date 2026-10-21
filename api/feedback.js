@@ -30,7 +30,9 @@ module.exports = async (req, res) => {
       if (typeof body === 'string') {
         body = JSON.parse(body);
       }
-      const { cpf, perfil, notaInfra, notaSeguranca, notaGeral, origem } = body || {};
+      const { cpf, perfil, notaInfra, notaSeguranca, notaGeral, origem, tipo } = body || {};
+
+      const finalOrigem = origem || (tipo === 'totem' ? 'Totem Físico #01' : 'App Mobile (QR Code)');
 
       const result = await db.query(
         `INSERT INTO feedbacks (cpf, perfil, nota_infra, nota_seguranca, nota_geral, origem, created_at)
@@ -42,11 +44,14 @@ module.exports = async (req, res) => {
           notaInfra || 5,
           notaSeguranca || 5,
           notaGeral || 5.0,
-          origem || 'Totem Físico #01 (Praça Central)'
+          finalOrigem
         ]
       );
 
-      return res.status(201).json({ success: true, feedback: result.rows[0] });
+      const row = result.rows[0];
+      row.tipo = (row.origem && row.origem.toLowerCase().includes('totem')) ? 'totem' : 'mobile';
+
+      return res.status(201).json({ success: true, feedback: row });
     } catch (err) {
       console.error('[API] Erro ao salvar feedback no Neon:', err);
       return res.status(500).json({ error: 'Erro ao salvar feedback', details: err.message });
@@ -74,7 +79,12 @@ module.exports = async (req, res) => {
       }
 
       const result = await db.query(query, params);
-      return res.status(200).json({ success: true, feedbacks: result.rows });
+      const rows = result.rows.map(r => ({
+        ...r,
+        tipo: (r.origem && r.origem.toLowerCase().includes('totem')) ? 'totem' : 'mobile'
+      }));
+
+      return res.status(200).json({ success: true, feedbacks: rows });
     } catch (err) {
       console.error('[API] Erro ao buscar feedbacks do Neon:', err);
       return res.status(500).json({ error: 'Erro ao buscar feedbacks', details: err.message });

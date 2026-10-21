@@ -692,16 +692,16 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
     <div class="to-timer"><i></i></div>
   </div>
 
-  <!-- Modal de QR Code para Conectar Totem Remoto -->
+  <!-- Modal de QR Code para Avaliação Mobile pelo Celular -->
   <div id="qr-modal" style="display:none;position:absolute;inset:0;background:rgba(15,27,45,0.85);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(5px);">
     <div style="background:#fff;border-radius:18px;padding:36px 44px;max-width:540px;width:90%;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,0.45);border-top:6px solid var(--g);position:relative;">
       <button onclick="toggleQrModal()" style="position:absolute;top:16px;right:20px;border:none;background:transparent;font-size:28px;cursor:pointer;color:var(--mut);line-height:1;" title="Fechar (ESC)">&times;</button>
-      <div style="font-size:12px;font-weight:800;letter-spacing:2px;color:var(--g);text-transform:uppercase;margin-bottom:6px;">Demonstração Multi-Dispositivos</div>
-      <h3 style="font-size:24px;font-weight:900;color:var(--ink);margin-bottom:8px;">Conecte o Totem no Celular ou Tablet</h3>
-      <p style="font-size:14px;color:var(--mut);margin-bottom:20px;line-height:1.5;">Aponte a câmera do celular para o QR Code abaixo. Ao votar no totem pelo celular, o slide no computador mudará instantaneamente:</p>
+      <div style="font-size:12px;font-weight:800;letter-spacing:2px;color:var(--g);text-transform:uppercase;margin-bottom:6px;">Engajamento Cidadão • App Mobile</div>
+      <h3 style="font-size:24px;font-weight:900;color:var(--ink);margin-bottom:8px;">Avalie pelo Celular</h3>
+      <p style="font-size:14px;color:var(--mut);margin-bottom:20px;line-height:1.5;">Aponte a câmera do celular para o QR Code abaixo para abrir o <b>App do Cidadão</b>. Os votos do celular alimentam o dashboard em tempo real <u>sem interromper a apresentação</u>:</p>
       
       <div style="background:#F8FAFC;padding:16px;border-radius:14px;display:inline-block;border:2px dashed var(--line);margin-bottom:16px;box-shadow:inset 0 2px 6px rgba(0,0,0,0.03);">
-        <img id="qr-img" src="" alt="QR Code Totem" style="width:210px;height:210px;display:block;">
+        <img id="qr-img" src="" alt="QR Code App Mobile" style="width:210px;height:210px;display:block;">
       </div>
 
       <div style="background:#EFF6FF;border:1px solid #BFDBFE;padding:10px 14px;border-radius:8px;font-size:12px;color:#1E40AF;word-break:break-all;margin-bottom:20px;font-family:monospace;font-weight:600;" id="qr-url-text">
@@ -709,8 +709,8 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
       </div>
 
       <div style="display:flex;gap:12px;justify-content:center;">
-        <button onclick="copyTotemUrl()" id="btn-copy-totem" style="padding:10px 22px;border-radius:8px;background:var(--soft);border:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .2s;">Copiar Link</button>
-        <button onclick="openTotemWindow()" style="padding:10px 22px;border-radius:8px;background:var(--g);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;">Abrir Aqui (Nova Aba)</button>
+        <button onclick="copyMobileUrl()" id="btn-copy-mobile" style="padding:10px 22px;border-radius:8px;background:var(--soft);border:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .2s;">Copiar Link</button>
+        <button onclick="openMobileWindow()" style="padding:10px 22px;border-radius:8px;background:var(--g);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;">Abrir App Mobile</button>
       </div>
     </div>
   </div>
@@ -836,8 +836,8 @@ function renderLive(prev, newId){
   $('v-infra').textContent = n ? one(S.sumI/n) : '–'; $('b-infra').style.width = (n ? S.sumI/n/5*100 : 0) + '%';
   $('v-seg').textContent = n ? one(S.sumS/n) : '–'; $('b-seg').style.width = (n ? S.sumS/n/5*100 : 0) + '%';
   $('feed').innerHTML = S.feed.slice(0, 5).map(f => `
-    <li class="${f.id === newId ? 'new' : ''}"><div class="fic">${icon('kiosk')}</div>
-      <div><b>${f.cpf}</b><span class="meta">${f.perfil} • ${f.hora}</span></div>
+    <li class="${f.id === newId ? 'new' : ''}"><div class="fic">${icon(f.canal && f.canal.includes('Totem') ? 'kiosk' : 'users')}</div>
+      <div><b>${f.cpf}</b><span class="meta">${f.canal || '🖥️ Totem #01'} • ${f.perfil} • ${f.hora}</span></div>
       <div class="nts"><span>Infra ${f.i}</span><span>Seg. ${f.s}</span></div></li>`).join('');
   $('empty').classList.toggle('hide', n > 0);
 }
@@ -857,20 +857,36 @@ function applyData(p){
   S.count++; S.sumI += i; S.sumS += s; S.dist[i-1]++; S.dist[s-1]++;
   if ((p.perfil || '').startsWith('Morador')) S.mor++; else S.vis++;
   const id = p.timestamp + '|' + p.cpf;
-  S.feed.unshift({ id, cpf: maskCpf(p.cpf), perfil: (p.perfil || '').startsWith('Morador') ? 'Morador' : 'Visitante', hora: new Date(p.timestamp).toLocaleTimeString('pt-BR'), i, s });
+  const isTotem = (p.tipo === 'totem') || (p.origem && (p.origem.toLowerCase().includes('totem') || p.origem.toLowerCase().includes('físico')));
+  const canalLabel = isTotem ? '🖥️ Totem #01' : '📱 App Mobile';
+  S.feed.unshift({ id, cpf: maskCpf(p.cpf), perfil: (p.perfil || '').startsWith('Morador') ? 'Morador' : 'Visitante', canal: canalLabel, hora: new Date(p.timestamp).toLocaleTimeString('pt-BR'), i, s });
   S.feed = S.feed.slice(0, 20);
   localStorage.setItem(KEY, JSON.stringify(S));
   renderLive(prev, id);
-  ['k-count','k-avg','k-split','k-pts'].forEach(k => { $(k).classList.add('flash'); setTimeout(() => $(k).classList.remove('flash'), 1400); });
+  if (cur === LIVE) {
+    ['k-count','k-avg','k-split','k-pts'].forEach(k => { $(k).classList.add('flash'); setTimeout(() => $(k).classList.remove('flash'), 1400); });
+  }
 }
 
-/* ================= Tomada de tela ao receber do totem ================= */
+/* ================= Recepção de votos: Totem Físico vs App Mobile ================= */
 const queue = []; let busy = false;
 function handleIncoming(p){
   if (!p || !p.cpf) return;
   const id = p.timestamp + '|' + p.cpf;
   if (seen.has(id)) return; seen.add(id);
-  queue.push(p); if (!busy) next();
+
+  // REGRA DE OURO: Apenas o Totem Físico tem o efeito dramático de mudar o slide!
+  const isTotem = (p.tipo === 'totem') || 
+                  (p.origem && (p.origem.toLowerCase().includes('totem') || p.origem.toLowerCase().includes('físico')));
+
+  if (isTotem) {
+    console.log('[Slide] 🖥️ Voto do Totem Físico recebido! Acionando takeover e transição de slide...');
+    queue.push(p); if (!busy) next();
+  } else {
+    // Votos do App Mobile / QR Code apenas computam no painel sem interromper os slides
+    console.log('[Slide] 📱 Voto do App Mobile recebido! Atualizando indicadores em segundo plano.');
+    applyData(p);
+  }
 }
 function next(){
   const p = queue.shift(); if (!p) { busy = false; return; }
@@ -889,10 +905,10 @@ function next(){
 function simulate(){
   const cpf = String(Math.floor(1e10 + Math.random()*9e10)).slice(0, 11);
   handleIncoming({ cpf, perfil: Math.random() < .65 ? 'Morador de Promissão' : 'Visitante / Turista Regional',
-    notaInfra: 1 + Math.floor(Math.random()*5), notaSeguranca: 2 + Math.floor(Math.random()*4), timestamp: new Date().toISOString(), origem: 'Simulação' });
+    notaInfra: 1 + Math.floor(Math.random()*5), notaSeguranca: 2 + Math.floor(Math.random()*4), timestamp: new Date().toISOString(), origem: 'Totem Físico #01', tipo: 'totem' });
 }
 
-/* ================= Modal QR Code e Nuvem Multi-Dispositivo ================= */
+/* ================= Modal QR Code para App Mobile (Celular) ================= */
 function toggleQrModal() {
   const modal = $('qr-modal');
   if (!modal) return;
@@ -901,21 +917,23 @@ function toggleQrModal() {
     modal.style.display = 'none';
   } else {
     modal.style.display = 'flex';
-    const totemUrl = window.PromissaoRealtime ? window.PromissaoRealtime.getTotemUrl() : (window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'totem_kiosk.html');
-    $('qr-url-text').textContent = totemUrl;
-    $('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(totemUrl)}`;
+    const mobileUrl = window.PromissaoRealtime ? window.PromissaoRealtime.getMobileUrl() : (window.location.origin + '/app');
+    $('qr-url-text').textContent = mobileUrl;
+    $('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(mobileUrl)}`;
   }
 }
-function copyTotemUrl() {
+function copyMobileUrl() {
   const url = $('qr-url-text').textContent;
   navigator.clipboard.writeText(url).then(() => {
-    const btn = $('btn-copy-totem');
-    btn.textContent = 'Copiado!';
-    setTimeout(() => { btn.textContent = 'Copiar Link'; }, 2000);
+    const btn = $('btn-copy-mobile');
+    if (btn) {
+      btn.textContent = 'Copiado!';
+      setTimeout(() => { btn.textContent = 'Copiar Link'; }, 2000);
+    }
   });
 }
-function openTotemWindow() {
-  const url = window.PromissaoRealtime ? window.PromissaoRealtime.getTotemUrl() : 'totem_kiosk.html';
+function openMobileWindow() {
+  const url = window.PromissaoRealtime ? window.PromissaoRealtime.getMobileUrl() : 'app_cidadao.html';
   window.open(url, '_blank');
 }
 
@@ -931,11 +949,11 @@ if (window.PromissaoRealtime) {
       if (dot && txt) {
         if (st.connected) {
           dot.style.background = '#10B981';
-          txt.textContent = `Totem Nuvem (${st.room})`;
-          if (pill) pill.title = `Nuvem Conectada ao vivo! Sala: "${st.room}". Clique para ver QR Code.`;
+          txt.textContent = 'Neon Conectado';
+          if (pill) pill.title = 'Banco de Dados Neon PostgreSQL Conectado! Clique para ver QR Code.';
         } else {
           dot.style.background = '#F59E0B';
-          txt.textContent = 'Conectando...';
+          txt.textContent = 'Conectando ao Banco...';
         }
       }
     }

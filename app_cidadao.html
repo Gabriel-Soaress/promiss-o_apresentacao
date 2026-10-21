@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Avaliação Cidadã • Prefeitura de Promissão</title>
+  <script src="logos_data.js"></script>
+  <style>
+    :root {
+      --g: #00843D;
+      --gd: #00602B;
+      --b: #005A9C;
+      --bd: #003E6B;
+      --y: #FFD100;
+      --bg: #F4F6F8;
+      --card-bg: #FFFFFF;
+      --text: #1F2937;
+      --mut: #6B7280;
+      --line: #E5E7EB;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Container centralizado para simular app mobile em telas maiores e ocupar 100% no celular */
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background: var(--card-bg);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 40px rgba(0,0,0,0.06);
+      position: relative;
+    }
+
+    /* Barra Superior com as cores municipais */
+    .top-strip {
+      height: 5px;
+      background: linear-gradient(90deg, var(--g) 0 60%, var(--y) 60% 68%, var(--b) 68% 100%);
+    }
+
+    /* Cabeçalho do App */
+    header.app-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      background: #FFFFFF;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-crest {
+      height: 44px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--b);
+      line-height: 1.1;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--mut);
+    }
+
+    .pts-badge {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      color: var(--b);
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pts-badge i {
+      color: #EAB308;
+      font-style: normal;
+    }
+
+    /* Banner do Evento */
+    .event-card {
+      margin: 16px 20px 0;
+      background: linear-gradient(135deg, var(--b) 0%, var(--bd) 100%);
+      color: #FFFFFF;
+      padding: 18px 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 8px 20px rgba(0,90,156,0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-tag {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      background: rgba(255,255,255,0.18);
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .event-card h2 {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+    }
+
+    .event-card p {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    /* Barra de Progresso das Etapas */
+    .stepper {
+      display: flex;
+      padding: 16px 20px 8px;
+      gap: 8px;
+    }
+
+    .step-bar {
+      height: 5px;
+      flex: 1;
+      background: var(--line);
+      border-radius: 10px;
+      transition: background 0.3s ease;
+    }
+
+    .step-bar.active {
+      background: var(--g);
+    }
+
+    /* Conteúdo Principal dos Passos */
+    main.app-main {
+      flex: 1;
+      padding: 12px 20px 30px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-section {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+
+    .step-section.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-title-box {
+      margin-bottom: 20px;
+    }
+
+    .step-num {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--g);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .step-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.4px;
+      margin-top: 2px;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--mut);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* Input de CPF Nativo Mobile */
+    .input-cpf-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--mut);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .cpf-input {
+      width: 100%;
+      height: 58px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 0 18px;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--text);
+      outline: none;
+      background: #F9FAFB;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .cpf-input:focus {
+      border-color: var(--g);
+      background: #FFFFFF;
+      box-shadow: 0 0 0 4px rgba(0,132,61,0.12);
+    }
+
+    .demo-btn-link {
+      background: transparent;
+      border: none;
+      color: var(--b);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 0;
+      cursor: pointer;
+      display: inline-block;
+      text-decoration: underline;
+    }
+
+    .info-tip {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #166534;
+      line-height: 1.45;
+      margin-top: 14px;
+    }
+
+    /* Cartões de Seleção (Perfil) */
+    .choices-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .choice-card {
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .choice-card:active, .choice-card.selected {
+      border-color: var(--g);
+      background: #F0FDF4;
+      box-shadow: 0 4px 14px rgba(0,132,61,0.12);
+    }
+
+    .choice-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #F3F4F6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .choice-card.selected .choice-icon {
+      background: var(--g);
+      color: #fff;
+    }
+
+    .choice-info b {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+      display: block;
+    }
+
+    .choice-info span {
+      font-size: 12px;
+      color: var(--mut);
+      margin-top: 2px;
+      display: block;
+    }
+
+    /* Seletor de Notas (1 a 5) */
+    .rating-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .rating-btn {
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rating-btn:active, .rating-btn.selected {
+      border-color: var(--g);
+      background: #F0FDF4;
+    }
+
+    .rating-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rating-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #F3F4F6;
+      font-weight: 900;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+    }
+
+    .rating-btn.selected .rating-badge {
+      background: var(--g);
+      color: #FFFFFF;
+    }
+
+    .rating-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .rating-emoji {
+      font-size: 20px;
+    }
+
+    /* Textarea de sugestão */
+    .comment-box {
+      width: 100%;
+      height: 90px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      resize: none;
+      background: #F9FAFB;
+      margin-top: 14px;
+      font-family: inherit;
+    }
+
+    .comment-box:focus {
+      border-color: var(--g);
+      background: #fff;
+    }
+
+    /* Botão de Ação Inferior */
+    .bottom-action {
+      margin-top: auto;
+      padding-top: 24px;
+    }
+
+    .btn-main {
+      width: 100%;
+      height: 56px;
+      background: var(--g);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 18px rgba(0,132,61,0.25);
+      transition: all 0.2s;
+    }
+
+    .btn-main:active {
+      transform: scale(0.98);
+      background: var(--gd);
+    }
+
+    .btn-main:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Tela de Sucesso */
+    .success-panel {
+      text-align: center;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .success-badge {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: #F0FDF4;
+      border: 3px solid var(--g);
+      color: var(--g);
+      font-size: 40px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .pts-awarded-card {
+      background: #F0FDF4;
+      border: 2px dashed var(--g);
+      padding: 16px 20px;
+      border-radius: 14px;
+      width: 100%;
+      margin: 20px 0;
+    }
+
+    .pts-awarded-num {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--gd);
+    }
+
+    .passaporte-card {
+      background: #F8FAFC;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+
+    .passaporte-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--mut);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .passaporte-level {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--b);
+      margin-top: 4px;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: #E5E7EB;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .progress-bar-fill {
+      width: 75%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--g), var(--y));
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    <div class="top-strip"></div>
+
+    <!-- Cabeçalho Institucional -->
+    <header class="app-header">
+      <div class="brand-wrap">
+        <img id="mobile-crest" class="brand-crest" alt="Brasão de Promissão">
+        <div class="brand-text">
+          <span>Prefeitura de Promissão</span>
+          <h1>VIVA PROMISSÃO</h1>
+        </div>
+      </div>
+      <div class="pts-badge">
+        <i>★</i> +50 PTS
+      </div>
+    </header>
+
+    <!-- Banner do Evento -->
+    <div class="event-card">
+      <div class="event-tag">Recinto de Eventos</div>
+      <h2>Festa do Peão 2026</h2>
+      <p>Avaliação Cidadã • Ajude a melhorar a festa</p>
+    </div>
+
+    <!-- Indicador de Etapas -->
+    <div class="stepper" id="stepper">
+      <div class="step-bar active" id="bar-1"></div>
+      <div class="step-bar" id="bar-2"></div>
+      <div class="step-bar" id="bar-3"></div>
+      <div class="step-bar" id="bar-4"></div>
+    </div>
+
+    <!-- Conteúdo Dinâmico -->
+    <main class="app-main">
+
+      <!-- ETAPA 1: CPF -->
+      <section class="step-section active" id="sec-1">
+        <div class="step-title-box">
+          <span class="step-num">Etapa 1 de 4</span>
+          <h3 class="step-title">Seu Documento (CPF)</h3>
+          <p class="step-desc">Seus pontos serão vinculados ao seu CPF para o Passaporte Cidadão municipal.</p>
+        </div>
+
+        <div class="input-cpf-group">
+          <label class="input-label" for="cpf-input">Digite apenas os números:</label>
+          <input 
+            type="tel" 
+            id="cpf-input" 
+            class="cpf-input" 
+            placeholder="000.000.000-00" 
+            maxlength="14"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="off"
+            oninput="handleCpfInput(this)"
+          >
+          <button class="demo-btn-link" onclick="fillDemoCpf()">Preencher CPF de teste rápido</button>
+        </div>
+
+        <div class="info-tip">
+          🔒 <strong>Segurança LGPD:</strong> Seus dados pessoais são mantidos em sigilo e usados exclusivamente para pontuação cívica e melhoria dos serviços públicos.
+        </div>
+
+        <div class="bottom-action">
+          <button class="btn-main" onclick="goToStep(2)">Avançar para Perguntas ➔</button>
+        </div>
+      </section>
+
+      <!-- ETAPA 2: Vínculo Territorial -->
+      <section class="step-section" id="sec-2">
+        <div class="step-title-box">
+          <span class="step-num">Etapa 2 de 4</span>
+          <h3 class="step-title">Você é de Promissão?</h3>
+          <p class="step-desc">Isso ajuda a prefeitura a entender o fluxo de munícipes e turistas.</p>
+        </div>
+
+        <div class="choices-list">
+          <button class="choice-card selected" onclick="selectPerfil('Morador de Promissão', this)">
+            <div class="choice-icon">🏠</div>
+            <div class="choice-info">
+              <b>Morador de Promissão</b>
+              <span>Resido no município ou na zona rural</span>
+            </div>
+          </button>
+
+          <button class="choice-card" onclick="selectPerfil('Visitante / Turista Regional', this)">
+            <div class="choice-icon">🎒</div>
+            <div class="choice-info">
+              <b>Visitante / Turista</b>
+              <span>Vim de outra cidade da região prestigiar o evento</span>
+            </div>
+          </button>
+        </div>
+
+        <div class="bottom-action">
+          <button class="btn-main" onclick="goToStep(3)">Próxima Pergunta ➔</button>
+        </div>
+      </section>
+
+      <!-- ETAPA 3: Infraestrutura -->
+      <section class="step-section" id="sec-3">
+        <div class="step-title-box">
+          <span class="step-num">Etapa 3 de 4</span>
+          <h3 class="step-title">Infraestrutura & Limpeza</h3>
+          <p class="step-desc">Como você avalia os banheiros químicos, praça de alimentação e acessibilidade?</p>
+        </div>
+
+        <div class="rating-picker" id="picker-infra">
+          <button class="rating-btn selected" onclick="selectRating('infra', 5, this)">
+            <div class="rating-btn-left"><div class="rating-badge">5</div><span class="rating-label">Excelente</span></div>
+            <span class="rating-emoji">🤩</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('infra', 4, this)">
+            <div class="rating-btn-left"><div class="rating-badge">4</div><span class="rating-label">Bom</span></div>
+            <span class="rating-emoji">🙂</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('infra', 3, this)">
+            <div class="rating-btn-left"><div class="rating-badge">3</div><span class="rating-label">Regular</span></div>
+            <span class="rating-emoji">😐</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('infra', 2, this)">
+            <div class="rating-btn-left"><div class="rating-badge">2</div><span class="rating-label">Ruim</span></div>
+            <span class="rating-emoji">🙁</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('infra', 1, this)">
+            <div class="rating-btn-left"><div class="rating-badge">1</div><span class="rating-label">Péssimo</span></div>
+            <span class="rating-emoji">😡</span>
+          </button>
+        </div>
+
+        <div class="bottom-action">
+          <button class="btn-main" onclick="goToStep(4)">Próxima Pergunta ➔</button>
+        </div>
+      </section>
+
+      <!-- ETAPA 4: Segurança, Shows e Comentário -->
+      <section class="step-section" id="sec-4">
+        <div class="step-title-box">
+          <span class="step-num">Etapa 4 de 4</span>
+          <h3 class="step-title">Segurança & Atrações</h3>
+          <p class="step-desc">Sensação de segurança no recinto e qualidade dos shows.</p>
+        </div>
+
+        <div class="rating-picker" id="picker-seg">
+          <button class="rating-btn selected" onclick="selectRating('seg', 5, this)">
+            <div class="rating-btn-left"><div class="rating-badge">5</div><span class="rating-label">Excelente</span></div>
+            <span class="rating-emoji">🛡️</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('seg', 4, this)">
+            <div class="rating-btn-left"><div class="rating-badge">4</div><span class="rating-label">Bom</span></div>
+            <span class="rating-emoji">👍</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('seg', 3, this)">
+            <div class="rating-btn-left"><div class="rating-badge">3</div><span class="rating-label">Regular</span></div>
+            <span class="rating-emoji">😐</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('seg', 2, this)">
+            <div class="rating-btn-left"><div class="rating-badge">2</div><span class="rating-label">Ruim</span></div>
+            <span class="rating-emoji">👎</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('seg', 1, this)">
+            <div class="rating-btn-left"><div class="rating-badge">1</div><span class="rating-label">Péssimo</span></div>
+            <span class="rating-emoji">⚠️</span>
+          </button>
+        </div>
+
+        <textarea id="mobile-comment" class="comment-box" placeholder="Deixe uma sugestão ou elogio para a Prefeitura (opcional)..."></textarea>
+
+        <div class="bottom-action">
+          <button id="btn-submit" class="btn-main" onclick="submitMobileFeedback()">Concluir e Ganhar +50 Pts ★</button>
+        </div>
+      </section>
+
+      <!-- ETAPA 5: Sucesso -->
+      <section class="step-section" id="sec-5">
+        <div class="success-panel">
+          <div class="success-badge">✓</div>
+          <h2 style="font-size: 24px; font-weight: 900; color: var(--b); margin-bottom: 6px;">OBRIGADO POR AVALIAR!</h2>
+          <p style="font-size: 14px; color: var(--mut); line-height: 1.45;">Sua contribuição foi salva com sucesso no banco de dados e enviada ao painel da Prefeitura.</p>
+
+          <div class="pts-awarded-card">
+            <span style="font-size: 12px; font-weight: 800; color: var(--g); letter-spacing: 1px; text-transform: uppercase;">Recompensa Cidadã</span>
+            <div class="pts-awarded-num">+50 PONTOS</div>
+            <span style="font-size: 12px; color: var(--mut);">Creditados no CPF informado</span>
+          </div>
+
+          <div class="passaporte-card">
+            <div class="passaporte-title">Passaporte Cidadão de Promissão</div>
+            <div class="passaporte-level">Nível Ouro da Cidade 🏆</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill"></div>
+            </div>
+            <small style="color: var(--mut); font-size: 11px;">Faltam 50 pontos para a insígnia Embaixador do Município.</small>
+          </div>
+
+          <button class="btn-main" onclick="resetForm()">Enviar Nova Avaliação</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Carregar Brasão Oficial
+    if (typeof BRASAO_PNG !== 'undefined') {
+      document.getElementById('mobile-crest').src = BRASAO_PNG;
+    } else {
+      document.getElementById('mobile-crest').src = 'brasao-rodape.png';
+    }
+
+    let currentStep = 1;
+    let selectedPerfil = 'Morador de Promissão';
+    let ratingInfra = 5;
+    let ratingSeguranca = 5;
+
+    function handleCpfInput(el) {
+      let v = el.value.replace(/\D/g, '').substring(0, 11);
+      if (v.length > 9) {
+        el.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+      } else if (v.length > 6) {
+        el.value = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+      } else if (v.length > 3) {
+        el.value = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+      } else {
+        el.value = v;
+      }
+    }
+
+    function fillDemoCpf() {
+      const el = document.getElementById('cpf-input');
+      const randomDemo = String(Math.floor(1e10 + Math.random()*9e10)).slice(0, 11);
+      el.value = randomDemo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    function goToStep(step) {
+      if (step === 2) {
+        const raw = document.getElementById('cpf-input').value.replace(/\D/g, '');
+        if (raw.length < 3) {
+          fillDemoCpf();
+        }
+      }
+
+      currentStep = step;
+      document.querySelectorAll('.step-section').forEach((sec, idx) => {
+        sec.classList.toggle('active', (idx + 1) === step);
+      });
+
+      // Atualizar barra de progresso
+      for (let i = 1; i <= 4; i++) {
+        const b = document.getElementById(`bar-${i}`);
+        if (b) b.classList.toggle('active', i <= step);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function selectPerfil(val, btn) {
+      selectedPerfil = val;
+      document.querySelectorAll('.choice-card').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    function selectRating(type, val, btn) {
+      if (type === 'infra') {
+        ratingInfra = val;
+        document.querySelectorAll('#picker-infra .rating-btn').forEach(b => b.classList.remove('selected'));
+      } else {
+        ratingSeguranca = val;
+        document.querySelectorAll('#picker-seg .rating-btn').forEach(b => b.classList.remove('selected'));
+      }
+      btn.classList.add('selected');
+    }
+
+    async function submitMobileFeedback() {
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.textContent = 'Enviando ao Banco de Dados...';
+
+      let rawCpf = document.getElementById('cpf-input').value.replace(/\D/g, '');
+      if (!rawCpf) rawCpf = String(Math.floor(1e10 + Math.random()*9e10)).slice(0, 11);
+
+      const payload = {
+        cpf: rawCpf,
+        perfil: selectedPerfil,
+        notaInfra: ratingInfra,
+        notaSeguranca: ratingSeguranca,
+        notaGeral: Math.round(((ratingInfra + ratingSeguranca) / 2) * 10) / 10,
+        origem: "App Mobile (QR Code)",
+        tipo: "mobile",
+        comentario: document.getElementById('mobile-comment').value.trim() || undefined,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        const res = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          console.log('✅ Feedback mobile enviado e gravado com sucesso no Neon!');
+        } else {
+          console.warn('Resposta da API:', res.statusText);
+        }
+      } catch (err) {
+        console.error('Erro ao enviar feedback:', err);
+      } finally {
+        goToStep(5);
+        btn.disabled = false;
+        btn.textContent = 'Concluir e Ganhar +50 Pts ★';
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('cpf-input').value = '';
+      document.getElementById('mobile-comment').value = '';
+      ratingInfra = 5;
+      ratingSeguranca = 5;
+      selectedPerfil = 'Morador de Promissão';
+      goToStep(1);
+    }
+  </script>
+</body>
+</html>

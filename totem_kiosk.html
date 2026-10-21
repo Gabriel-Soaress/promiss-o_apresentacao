@@ -827,7 +827,8 @@
         notaSeguranca: dataQ3,
         notaGeral: Math.round(((dataQ2 + dataQ3) / 2) * 10) / 10,
         timestamp: new Date().toISOString(),
-        origem: "Totem Físico #01 (Praça Central)"
+        origem: "Totem Físico #01 (Praça Central)",
+        tipo: "totem"
       };
 
       // Disparar sincronização multi-dispositivo (Nuvem MQTT) e local (BroadcastChannel / LocalStorage)

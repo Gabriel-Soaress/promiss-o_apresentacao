@@ -186,9 +186,18 @@
 
     getTotemUrl: function() {
       const loc = window.location;
-      const base = loc.protocol + '//' + loc.host;
-      let path = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') + 1);
-      return `${base}${path}totem_kiosk.html`;
+      if (!loc.protocol.startsWith('http')) {
+        return 'totem_kiosk.html';
+      }
+      return `${loc.origin}/totem`;
+    },
+
+    getMobileUrl: function() {
+      const loc = window.location;
+      if (!loc.protocol.startsWith('http')) {
+        return 'app_cidadao.html';
+      }
+      return `${loc.origin}/app`;
     }
   };
 

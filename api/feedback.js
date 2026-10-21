@@ -26,6 +26,12 @@ module.exports = async (req, res) => {
 
   if (req.method === 'POST') {
     try {
+      if (req.query && req.query.action === 'reset') {
+        await db.query('TRUNCATE TABLE feedbacks RESTART IDENTITY;');
+        console.log('[API] Banco de dados resetado via endpoint!');
+        return res.status(200).json({ success: true, count: 0 });
+      }
+
       let body = req.body;
       if (typeof body === 'string') {
         body = JSON.parse(body);

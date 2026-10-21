@@ -103,13 +103,18 @@
 
   async function initPolling() {
     try {
-      // 1. Pegar o último ID atual do banco para não disparar takeover de votos antigos
+      // 1. Sincronizar o estado exato com o banco de dados
       const res = await fetch(`${getApiUrl()}?since_id=0`, { headers: { 'Accept': 'application/json' } });
       if (res.ok) {
         const data = await res.json();
-        if (data && data.feedbacks && data.feedbacks.length > 0) {
-          const maxId = Math.max(...data.feedbacks.map(f => f.id || 0));
-          lastSeenId = maxId;
+        const items = data.feedbacks || [];
+        if (typeof window.syncWithDatabase === 'function') {
+          window.syncWithDatabase(items);
+        }
+        if (items.length > 0) {
+          lastSeenId = Math.max(...items.map(f => f.id || 0));
+        } else {
+          lastSeenId = 0;
         }
         notifyStatus('connected', 'Conexão Ativa');
       }

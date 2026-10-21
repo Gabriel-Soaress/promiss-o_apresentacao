@@ -813,7 +813,8 @@ function countTo(el, from, to, dur = 900, fmt = fmtInt){
 }
 
 /* ================= Estado do painel ao vivo ================= */
-const KEY = 'promissao_live_state_v2';
+const KEY = 'promissao_live_state_v3';
+try { localStorage.removeItem('promissao_live_state'); localStorage.removeItem('promissao_live_state_v2'); } catch(e) {}
 const COLORS = ['#C62828','#E07A1F','#C9A400','#4C9A2A','#00843D'];
 let S = JSON.parse(localStorage.getItem(KEY) || 'null') || { count:0, sumI:0, sumS:0, dist:[0,0,0,0,0], mor:0, vis:0, feed:[] };
 const seen = new Set(S.feed.map(f => f.id));
@@ -846,8 +847,51 @@ function regrow(){
   $('g-val').style.strokeDashoffset = 439.8; $('b-infra').style.width = '0%'; $('b-seg').style.width = '0%';
   setTimeout(() => renderLive(null), 650);
 }
-function resetLive(){ S = { count:0, sumI:0, sumS:0, dist:[0,0,0,0,0], mor:0, vis:0, feed:[] }; seen.clear(); localStorage.setItem(KEY, JSON.stringify(S)); renderLive(null); }
+function resetLive(wipeServer = false){ 
+  S = { count:0, sumI:0, sumS:0, dist:[0,0,0,0,0], mor:0, vis:0, feed:[] }; 
+  seen.clear(); 
+  localStorage.setItem(KEY, JSON.stringify(S)); 
+  renderLive(null); 
+  if (wipeServer) {
+    try { fetch('/api/feedback?action=reset', { method: 'POST' }); } catch(e) {}
+  }
+}
 renderLive(null);
+
+window.syncWithDatabase = function(feedbacks) {
+  if (!feedbacks || feedbacks.length === 0) {
+    resetLive(false);
+    return;
+  }
+  S = { count:0, sumI:0, sumS:0, dist:[0,0,0,0,0], mor:0, vis:0, feed:[] };
+  seen.clear();
+  const sorted = [...feedbacks].sort((a,b) => a.id - b.id);
+  for (const item of sorted) {
+    const slides = +(item.notaSlides || item.notaInfra || 5);
+    const ideia = +(item.notaIdeia || item.notaSeguranca || 5);
+    const geral = +(item.notaGeral || 5);
+    S.count++; S.sumI += slides; S.sumS += ideia; S.dist[slides-1]++; S.dist[ideia-1]++;
+    if ((item.perfil || '').toLowerCase().includes('morador') || (item.perfil || '').toLowerCase().includes('banca')) S.mor++; else S.vis++;
+    const id = item.timestamp + '|' + item.cpf;
+    seen.add(id);
+    const isTotem = (item.tipo === 'totem') || (item.origem && item.origem.toLowerCase().includes('totem'));
+    S.feed.unshift({
+      id,
+      cpf: maskCpf(item.cpf),
+      perfil: item.perfil || 'Avaliador',
+      canal: isTotem ? '🖥️ Totem' : '📱 Celular',
+      hora: new Date(item.timestamp).toLocaleTimeString('pt-BR'),
+      slides,
+      ideia,
+      geral,
+      i: slides,
+      s: ideia
+    });
+  }
+  S.feed = S.feed.slice(0, 20);
+  localStorage.setItem(KEY, JSON.stringify(S));
+  renderLive(null);
+};
 
 const maskCpf = c => { c = (c || '').padEnd(11, '0'); return `${c.slice(0,3)}.${c.slice(3,6)}.***-${c.slice(9,11)}`; };
 

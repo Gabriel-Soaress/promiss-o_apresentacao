@@ -75,7 +75,7 @@
 
       if (res.ok) {
         const data = await res.json();
-        notifyStatus('connected', 'Neon PostgreSQL Conectado');
+        notifyStatus('connected', 'Conexão Ativa');
 
         if (data && data.feedbacks && Array.isArray(data.feedbacks)) {
           for (const item of data.feedbacks) {
@@ -84,7 +84,7 @@
             }
             const dedupKey = item.id || (item.cpf + '|' + item.timestamp);
             if (!isDuplicate(dedupKey)) {
-              console.log('[Neon Realtime] 📥 Novo voto detectado no banco de dados:', item);
+              console.log('[Realtime] 📥 Novo voto detectado:', item);
               if (typeof onFeedbackCallback === 'function') {
                 onFeedbackCallback(item);
               }
@@ -95,7 +95,7 @@
         notifyStatus('error', 'Resposta não-OK da API');
       }
     } catch (err) {
-      notifyStatus('offline', 'Aguardando servidor Neon...');
+      notifyStatus('offline', 'Aguardando conexão...');
     } finally {
       isPolling = false;
     }
@@ -110,12 +110,11 @@
         if (data && data.feedbacks && data.feedbacks.length > 0) {
           const maxId = Math.max(...data.feedbacks.map(f => f.id || 0));
           lastSeenId = maxId;
-          console.log(`[Neon Realtime] Sincronizado com o banco Neon. Último ID existente: ${lastSeenId}`);
         }
-        notifyStatus('connected', 'Neon PostgreSQL Conectado');
+        notifyStatus('connected', 'Conexão Ativa');
       }
     } catch (err) {
-      console.warn('[Neon Realtime] Não foi possível obter estado inicial do banco:', err.message);
+      console.warn('[Realtime] Inicialização local:', err.message);
     }
 
     // 2. Iniciar verificação reativa a cada 1000ms
@@ -136,7 +135,7 @@
         // Totem só precisa verificar conectividade inicial
         fetch(`${getApiUrl()}?since_id=0`)
           .then(res => {
-            if (res.ok) notifyStatus('connected', 'Neon PostgreSQL Conectado');
+            if (res.ok) notifyStatus('connected', 'Conexão Ativa');
             else notifyStatus('error', 'API indisponível');
           })
           .catch(() => notifyStatus('offline', 'Servidor offline'));
@@ -156,9 +155,9 @@
         localStorage.setItem('promissao_feedback_trigger', Date.now().toString());
       } catch(e) {}
 
-      // Gravar no Neon PostgreSQL através da API
+      // Gravar através da API
       try {
-        console.log('[Neon Realtime] 📤 Enviando avaliação para gravação no banco de dados Neon...', payload);
+        console.log('[Realtime] 📤 Enviando avaliação...', payload);
         const res = await fetch(getApiUrl(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -167,15 +166,15 @@
 
         if (res.ok) {
           const data = await res.json();
-          console.log('[Neon Realtime] ✅ Salvo com sucesso no Neon PostgreSQL! ID:', data.feedback?.id);
-          notifyStatus('connected', 'Voto gravado no Neon Postgres');
+          console.log('[Realtime] ✅ Salvo com sucesso! ID:', data.feedback?.id);
+          notifyStatus('connected', 'Conexão Ativa');
           return data;
         } else {
-          console.error('[Neon Realtime] ❌ Erro na resposta da API:', res.statusText);
-          notifyStatus('error', 'Falha ao salvar no banco');
+          console.error('[Realtime] ❌ Erro na resposta da API:', res.statusText);
+          notifyStatus('error', 'Falha ao salvar');
         }
       } catch (err) {
-        console.error('[Neon Realtime] ❌ Erro de rede ao gravar no banco:', err);
+        console.error('[Realtime] ❌ Erro de rede:', err);
         notifyStatus('offline', 'Erro de rede');
       }
     },

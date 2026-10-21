@@ -525,10 +525,6 @@
           <button class="demo-btn-link" onclick="fillDemoCpf()">Preencher CPF de teste rápido</button>
         </div>
 
-        <div class="info-tip">
-          💡 <strong>Demonstração ao Vivo:</strong> Suas notas serão enviadas via Neon PostgreSQL e computadas no dashboard no projetor em tempo real!
-        </div>
-
         <div class="bottom-action">
           <button class="btn-main" onclick="goToStep(2)">Avançar para Perguntas ➔</button>
         </div>
@@ -649,7 +645,7 @@
         <div class="success-panel">
           <div class="success-badge">✓</div>
           <h2 style="font-size: 24px; font-weight: 900; color: var(--b); margin-bottom: 6px;">AVALIAÇÃO RECEBIDA!</h2>
-          <p style="font-size: 14px; color: var(--mut); line-height: 1.45;">Suas notas já foram sincronizadas com o banco Neon PostgreSQL e entraram nos indicadores do painel.</p>
+          <p style="font-size: 14px; color: var(--mut); line-height: 1.45;">Suas notas foram registradas com sucesso e consolidadas nos indicadores oficiais.</p>
 
           <div class="pts-awarded-card">
             <span style="font-size: 12px; font-weight: 800; color: var(--g); letter-spacing: 1px; text-transform: uppercase;">Participação Cívica</span>
@@ -742,7 +738,7 @@
     async function submitMobileFeedback() {
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
-      btn.textContent = 'Enviando ao Banco de Dados...';
+      btn.textContent = 'Enviando avaliação...';
 
       let rawCpf = document.getElementById('cpf-input').value.replace(/\D/g, '');
       if (!rawCpf) rawCpf = String(Math.floor(1e10 + Math.random()*9e10)).slice(0, 11);
@@ -769,7 +765,7 @@
         });
 
         if (res.ok) {
-          console.log('✅ Avaliação enviada e gravada com sucesso no Neon!');
+          console.log('✅ Avaliação registrada com sucesso!');
         }
       } catch (err) {
         console.error('Erro ao enviar feedback:', err);

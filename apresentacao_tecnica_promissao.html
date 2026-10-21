@@ -485,8 +485,8 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
             <div class="xl"><div><b>1</b>Péssimo</div><div><b>2</b>Ruim</div><div><b>3</b>Regular</div><div><b>4</b>Bom</div><div><b>5</b>Excelente</div></div>
           </div>
           <div class="pnl"><h5>Média por categoria</h5>
-            <div class="cat"><div class="top">Infraestrutura e banheiros <b id="v-infra">–</b></div><div class="track"><i id="b-infra"></i></div></div>
-            <div class="cat g"><div class="top">Segurança e shows <b id="v-seg">–</b></div><div class="track"><i id="b-seg"></i></div></div>
+            <div class="cat"><div class="top">Qualidade dos Slides &amp; Design <b id="v-infra">–</b></div><div class="track"><i id="b-infra"></i></div></div>
+            <div class="cat g"><div class="top">Ideia &amp; Solução Proposta <b id="v-seg">–</b></div><div class="track"><i id="b-seg"></i></div></div>
           </div>
           <div class="pnl"><h5>Últimas avaliações recebidas</h5><ul class="feed" id="feed"></ul></div>
         </div>
@@ -837,8 +837,8 @@ function renderLive(prev, newId){
   $('v-seg').textContent = n ? one(S.sumS/n) : '–'; $('b-seg').style.width = (n ? S.sumS/n/5*100 : 0) + '%';
   $('feed').innerHTML = S.feed.slice(0, 5).map(f => `
     <li class="${f.id === newId ? 'new' : ''}"><div class="fic">${icon(f.canal && f.canal.includes('Totem') ? 'kiosk' : 'users')}</div>
-      <div><b>${f.cpf}</b><span class="meta">${f.canal || '🖥️ Totem #01'} • ${f.perfil} • ${f.hora}</span></div>
-      <div class="nts"><span>Infra ${f.i}</span><span>Seg. ${f.s}</span></div></li>`).join('');
+      <div><b>${f.cpf}</b><span class="meta">${f.canal || '🖥️ Totem'} • ${f.perfil || 'Avaliador'} • ${f.hora}</span></div>
+      <div class="nts"><span>Slides ${f.slides || f.i}</span><span>Ideia ${f.ideia || f.s}</span><span>Geral ${f.geral || f.s}</span></div></li>`).join('');
   $('empty').classList.toggle('hide', n > 0);
 }
 function regrow(){
@@ -853,13 +853,26 @@ const maskCpf = c => { c = (c || '').padEnd(11, '0'); return `${c.slice(0,3)}.${
 
 function applyData(p){
   const prev = JSON.parse(JSON.stringify(S));
-  const i = +p.notaInfra || 5, s = +p.notaSeguranca || 5;
-  S.count++; S.sumI += i; S.sumS += s; S.dist[i-1]++; S.dist[s-1]++;
-  if ((p.perfil || '').startsWith('Morador')) S.mor++; else S.vis++;
+  const slides = +(p.notaSlides || p.notaInfra || 5);
+  const ideia = +(p.notaIdeia || p.notaSeguranca || 5);
+  const geral = +(p.notaGeral || Math.round(((slides + ideia)/2)*10)/10);
+  S.count++; S.sumI += slides; S.sumS += ideia; S.dist[slides-1]++; S.dist[ideia-1]++;
+  if ((p.perfil || '').toLowerCase().includes('morador') || (p.perfil || '').toLowerCase().includes('banca')) S.mor++; else S.vis++;
   const id = p.timestamp + '|' + p.cpf;
   const isTotem = (p.tipo === 'totem') || (p.origem && (p.origem.toLowerCase().includes('totem') || p.origem.toLowerCase().includes('físico')));
-  const canalLabel = isTotem ? '🖥️ Totem #01' : '📱 App Mobile';
-  S.feed.unshift({ id, cpf: maskCpf(p.cpf), perfil: (p.perfil || '').startsWith('Morador') ? 'Morador' : 'Visitante', canal: canalLabel, hora: new Date(p.timestamp).toLocaleTimeString('pt-BR'), i, s });
+  const canalLabel = isTotem ? '🖥️ Totem' : '📱 Celular';
+  S.feed.unshift({ 
+    id, 
+    cpf: maskCpf(p.cpf), 
+    perfil: p.perfil || 'Avaliador', 
+    canal: canalLabel, 
+    hora: new Date(p.timestamp).toLocaleTimeString('pt-BR'), 
+    slides, 
+    ideia, 
+    geral,
+    i: slides,
+    s: ideia
+  });
   S.feed = S.feed.slice(0, 20);
   localStorage.setItem(KEY, JSON.stringify(S));
   renderLive(prev, id);
@@ -893,8 +906,10 @@ function next(){
   busy = true;
   const to = $('takeover');
   $('to-cpf').textContent = maskCpf(p.cpf);
-  const mor = (p.perfil || '').startsWith('Morador');
-  $('to-chips').innerHTML = `<span>${mor ? 'Morador de Promissão' : 'Visitante / Turista'}</span><span>Infraestrutura: ${p.notaInfra}/5</span><span>Segurança: ${p.notaSeguranca}/5</span><span class="pts">+50 pontos</span>`;
+  const slides = p.notaSlides || p.notaInfra || 5;
+  const ideia = p.notaIdeia || p.notaSeguranca || 5;
+  const geral = p.notaGeral || 5;
+  $('to-chips').innerHTML = `<span>Slides: ${slides}/5</span><span>Ideia: ${ideia}/5</span><span>Geral: ${geral}/5</span><span class="pts">+50 pontos</span>`;
   to.classList.remove('out'); void to.offsetWidth; to.classList.add('in');
   totemFlash();
   setTimeout(() => goTo(LIVE, { instant: true }), 2300);

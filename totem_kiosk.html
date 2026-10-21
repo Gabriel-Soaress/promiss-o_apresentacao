@@ -530,10 +530,10 @@
 
   <!-- Barra de Passos -->
   <div class="step-track-container">
-    <div class="step-indicator active" id="track-1"><div class="step-circle">1</div> Identificação (CPF)</div>
-    <div class="step-indicator" id="track-2"><div class="step-circle">2</div> Vínculo Territorial</div>
-    <div class="step-indicator" id="track-3"><div class="step-circle">3</div> Infraestrutura</div>
-    <div class="step-indicator" id="track-4"><div class="step-circle">4</div> Segurança & Shows</div>
+    <div class="step-indicator active" id="track-1"><div class="step-circle">1</div> Identificação</div>
+    <div class="step-indicator" id="track-2"><div class="step-circle">2</div> Slides</div>
+    <div class="step-indicator" id="track-3"><div class="step-circle">3</div> Ideia & Solução</div>
+    <div class="step-indicator" id="track-4"><div class="step-circle">4</div> Geral</div>
   </div>
 
   <!-- Corpo Principal com Telas Dinâmicas -->
@@ -542,8 +542,8 @@
     <!-- PASSO 1: Identificação por CPF -->
     <section class="kiosk-step-view active" id="view-step-1">
       <div class="step-header">
-        <h2 class="step-title">Passo 1: Identificação do Participante</h2>
-        <p class="step-desc">Digite apenas o seu CPF para acumular seus pontos de cidadão. Sem telas longas de cadastro.</p>
+        <h2 class="step-title">Passo 1: Identificação do Avaliador</h2>
+        <p class="step-desc">Digite o seu CPF para registrar sua avaliação na banca e acumular pontos.</p>
       </div>
 
       <div class="cpf-container-layout">
@@ -551,7 +551,7 @@
           <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px;">SEU DOCUMENTO (CPF):</div>
           <div class="cpf-display-box" id="cpf-screen-val">___.___.___-__</div>
           <div style="padding: 15px; background: #EFF6FF; border-left: 4px solid var(--promissao-blue); font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-            💡 <strong>Pontuação Inteligente:</strong> Seus pontos serão acumulados no seu CPF. Ao instalar o app da cidade no futuro, seus pontos serão creditados automaticamente.
+            💡 <strong>Avaliação Interativa:</strong> Suas notas aparecerão instantaneamente na tela do projetor ao vivo.
           </div>
         </div>
 
@@ -574,29 +574,43 @@
       </div>
 
       <div class="step-actions-footer">
-        <span style="font-size: 12px; color: var(--text-muted);">🔒 Protegido pela Lei Geral de Proteção de Dados (LGPD)</span>
+        <span style="font-size: 12px; color: var(--text-muted);">🔒 Simulação oficial do Projeto de Extensão</span>
         <button class="btn-step-next" onclick="goToStep(2)">Avançar para Perguntas ▶</button>
       </div>
     </section>
 
-    <!-- PASSO 2: Pergunta 1 - Vínculo Territorial -->
+    <!-- PASSO 2: Pergunta 1 - Qualidade dos Slides -->
     <section class="kiosk-step-view" id="view-step-2">
       <div class="step-header">
-        <h2 class="step-title">Passo 2: Vínculo com Promissão/SP</h2>
-        <p class="step-desc">Selecione uma das opções abaixo com um simples toque na tela.</p>
+        <h2 class="step-title">Pergunta 1 de 3: Qualidade dos Slides</h2>
+        <p class="step-desc">Como você avalia a clareza, design visual e organização dos slides técnicos?</p>
       </div>
 
-      <div class="choices-grid-2">
-        <button class="choice-card-btn selected" id="opt-resident-1" onclick="selectResident('Morador de Promissão', this)">
-          <div class="choice-icon">🏡</div>
-          <div class="choice-text">Sou Morador de Promissão</div>
-          <div style="font-size: 12px; color: var(--text-muted);">Munícipe da área urbana ou rural</div>
+      <div class="ratings-grid-5">
+        <button class="rating-card-btn" onclick="selectRatingQ1(1, this)">
+          <div class="rating-emoji">😡</div>
+          <div class="rating-title">Péssimo</div>
+          <div class="rating-sub">Nota 1.0</div>
         </button>
-
-        <button class="choice-card-btn" id="opt-resident-2" onclick="selectResident('Visitante / Turista Regional', this)">
-          <div class="choice-icon">🚗</div>
-          <div class="choice-text">Sou Visitante / Turista</div>
-          <div style="font-size: 12px; color: var(--text-muted);">Vim de cidades vizinhas ou outro estado</div>
+        <button class="rating-card-btn" onclick="selectRatingQ1(2, this)">
+          <div class="rating-emoji">🙁</div>
+          <div class="rating-title">Ruim</div>
+          <div class="rating-sub">Nota 2.0</div>
+        </button>
+        <button class="rating-card-btn" onclick="selectRatingQ1(3, this)">
+          <div class="rating-emoji">😐</div>
+          <div class="rating-title">Regular</div>
+          <div class="rating-sub">Nota 3.0</div>
+        </button>
+        <button class="rating-card-btn" onclick="selectRatingQ1(4, this)">
+          <div class="rating-emoji">🙂</div>
+          <div class="rating-title">Bom</div>
+          <div class="rating-sub">Nota 4.0</div>
+        </button>
+        <button class="rating-card-btn selected" onclick="selectRatingQ1(5, this)">
+          <div class="rating-emoji">😄</div>
+          <div class="rating-title">Excelente</div>
+          <div class="rating-sub">Nota 5.0</div>
         </button>
       </div>
 
@@ -606,11 +620,11 @@
       </div>
     </section>
 
-    <!-- PASSO 3: Pergunta 2 - Limpeza e Infraestrutura -->
+    <!-- PASSO 3: Pergunta 2 - Ideia e Solução Técnica -->
     <section class="kiosk-step-view" id="view-step-3">
       <div class="step-header">
-        <h2 class="step-title">Passo 3: Infraestrutura e Banheiros</h2>
-        <p class="step-desc">Como você avalia a limpeza dos sanitários, praça de alimentação e sinalização do recinto?</p>
+        <h2 class="step-title">Pergunta 2 de 3: Ideia & Solução</h2>
+        <p class="step-desc">Como você avalia a ideia, viabilidade e relevância prática da solução para a Prefeitura?</p>
       </div>
 
       <div class="ratings-grid-5">
@@ -647,11 +661,11 @@
       </div>
     </section>
 
-    <!-- PASSO 4: Pergunta 3 - Segurança e Organização Geral -->
+    <!-- PASSO 4: Pergunta 3 - Apresentação Geral -->
     <section class="kiosk-step-view" id="view-step-4">
       <div class="step-header">
-        <h2 class="step-title">Passo 4: Segurança e Qualidade dos Shows</h2>
-        <p class="step-desc">Como você avalia o policiamento, a segurança privada e as atrações musicais de hoje?</p>
+        <h2 class="step-title">Pergunta 3 de 3: Avaliação Geral</h2>
+        <p class="step-desc">No geral, como você avalia o domínio, clareza e desenvoltura da apresentação?</p>
       </div>
 
       <div class="ratings-grid-5">
@@ -685,7 +699,7 @@
       <div class="step-actions-footer">
         <button class="btn-step-prev" onclick="goToStep(3)">◀ Voltar</button>
         <button class="btn-step-next" style="background: var(--promissao-green-dark);" onclick="finishKioskSubmission()">
-          <span>CONCLUIR E ENVIAR AVALIAÇÃO</span>
+          <span>ENVIAR AVALIAÇÃO DA APRESENTAÇÃO</span>
           <span style="background: rgba(255,255,255,0.2); padding: 3px 8px; font-size: 12px;">+50 PTS</span>
         </button>
       </div>
@@ -752,9 +766,9 @@
     // Estado da Coleta
     let currentStep = 1;
     let kioskCpf = "";
-    let dataResident = "Morador de Promissão";
-    let dataQ2 = 5;
-    let dataQ3 = 5;
+    let dataQ1 = 5; // Slides
+    let dataQ2 = 5; // Ideia
+    let dataQ3 = 5; // Geral
 
     function renderKioskCpf() {
       let d = kioskCpf.padEnd(11, "_");
@@ -779,9 +793,9 @@
       renderKioskCpf();
     }
 
-    function selectResident(val, el) {
-      dataResident = val;
-      document.querySelectorAll('.choice-card-btn').forEach(b => b.classList.remove('selected'));
+    function selectRatingQ1(val, el) {
+      dataQ1 = val;
+      document.querySelectorAll('#view-step-2 .rating-card-btn').forEach(b => b.classList.remove('selected'));
       el.classList.add('selected');
     }
 
@@ -822,12 +836,14 @@
     function finishKioskSubmission() {
       const payload = {
         cpf: kioskCpf || "48192038194",
-        perfil: dataResident,
-        notaInfra: dataQ2,
-        notaSeguranca: dataQ3,
-        notaGeral: Math.round(((dataQ2 + dataQ3) / 2) * 10) / 10,
+        perfil: "Banca Avaliadora",
+        notaSlides: dataQ1,
+        notaIdeia: dataQ2,
+        notaGeral: dataQ3,
+        notaInfra: dataQ1,
+        notaSeguranca: dataQ2,
         timestamp: new Date().toISOString(),
-        origem: "Totem Físico #01 (Praça Central)",
+        origem: "Totem Físico #01 (Apresentação)",
         tipo: "totem"
       };
 

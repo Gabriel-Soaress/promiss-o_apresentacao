@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Avaliação Cidadã • Prefeitura de Promissão</title>
+  <title>Avaliação da Apresentação • Projeto de Extensão</title>
   <script src="logos_data.js"></script>
   <style>
     :root {
@@ -39,7 +39,6 @@
       overflow-x: hidden;
     }
 
-    /* Container centralizado para simular app mobile em telas maiores e ocupar 100% no celular */
     .app-shell {
       width: 100%;
       max-width: 480px;
@@ -51,13 +50,11 @@
       position: relative;
     }
 
-    /* Barra Superior com as cores municipais */
     .top-strip {
       height: 5px;
       background: linear-gradient(90deg, var(--g) 0 60%, var(--y) 60% 68%, var(--b) 68% 100%);
     }
 
-    /* Cabeçalho do App */
     header.app-header {
       padding: 16px 20px;
       display: flex;
@@ -116,7 +113,6 @@
       font-style: normal;
     }
 
-    /* Banner do Evento */
     .event-card {
       margin: 16px 20px 0;
       background: linear-gradient(135deg, var(--b) 0%, var(--bd) 100%);
@@ -152,7 +148,6 @@
       margin-top: 4px;
     }
 
-    /* Barra de Progresso das Etapas */
     .stepper {
       display: flex;
       padding: 16px 20px 8px;
@@ -171,7 +166,6 @@
       background: var(--g);
     }
 
-    /* Conteúdo Principal dos Passos */
     main.app-main {
       flex: 1;
       padding: 12px 20px 30px;
@@ -222,7 +216,6 @@
       line-height: 1.4;
     }
 
-    /* Input de CPF Nativo Mobile */
     .input-cpf-group {
       margin-bottom: 16px;
     }
@@ -282,65 +275,6 @@
       margin-top: 14px;
     }
 
-    /* Cartões de Seleção (Perfil) */
-    .choices-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 4px;
-    }
-
-    .choice-card {
-      border: 2px solid var(--line);
-      border-radius: 14px;
-      padding: 16px;
-      background: #FFFFFF;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: left;
-    }
-
-    .choice-card:active, .choice-card.selected {
-      border-color: var(--g);
-      background: #F0FDF4;
-      box-shadow: 0 4px 14px rgba(0,132,61,0.12);
-    }
-
-    .choice-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: #F3F4F6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-
-    .choice-card.selected .choice-icon {
-      background: var(--g);
-      color: #fff;
-    }
-
-    .choice-info b {
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--text);
-      display: block;
-    }
-
-    .choice-info span {
-      font-size: 12px;
-      color: var(--mut);
-      margin-top: 2px;
-      display: block;
-    }
-
-    /* Seletor de Notas (1 a 5) */
     .rating-picker {
       display: flex;
       flex-direction: column;
@@ -399,7 +333,6 @@
       font-size: 20px;
     }
 
-    /* Textarea de sugestão */
     .comment-box {
       width: 100%;
       height: 90px;
@@ -420,7 +353,6 @@
       background: #fff;
     }
 
-    /* Botão de Ação Inferior */
     .bottom-action {
       margin-top: auto;
       padding-top: 24px;
@@ -454,7 +386,6 @@
       cursor: not-allowed;
     }
 
-    /* Tela de Sucesso */
     .success-panel {
       text-align: center;
       padding: 20px 0;
@@ -527,7 +458,7 @@
     }
 
     .progress-bar-fill {
-      width: 75%;
+      width: 100%;
       height: 100%;
       background: linear-gradient(90deg, var(--g), var(--y));
     }
@@ -538,13 +469,13 @@
   <div class="app-shell">
     <div class="top-strip"></div>
 
-    <!-- Cabeçalho Institucional -->
+    <!-- Cabeçalho -->
     <header class="app-header">
       <div class="brand-wrap">
         <img id="mobile-crest" class="brand-crest" alt="Brasão de Promissão">
         <div class="brand-text">
-          <span>Prefeitura de Promissão</span>
-          <h1>VIVA PROMISSÃO</h1>
+          <span>Projeto de Extensão</span>
+          <h1>AVALIAÇÃO DA BANCA</h1>
         </div>
       </div>
       <div class="pts-badge">
@@ -552,11 +483,11 @@
       </div>
     </header>
 
-    <!-- Banner do Evento -->
+    <!-- Banner -->
     <div class="event-card">
-      <div class="event-tag">Recinto de Eventos</div>
-      <h2>Festa do Peão 2026</h2>
-      <p>Avaliação Cidadã • Ajude a melhorar a festa</p>
+      <div class="event-tag">Apresentação Técnica</div>
+      <h2>Sistema Integrado Promissão</h2>
+      <p>Sua avaliação alimenta o painel da equipe em tempo real</p>
     </div>
 
     <!-- Indicador de Etapas -->
@@ -570,16 +501,16 @@
     <!-- Conteúdo Dinâmico -->
     <main class="app-main">
 
-      <!-- ETAPA 1: CPF -->
+      <!-- ETAPA 1: Identificação -->
       <section class="step-section active" id="sec-1">
         <div class="step-title-box">
-          <span class="step-num">Etapa 1 de 4</span>
-          <h3 class="step-title">Seu Documento (CPF)</h3>
-          <p class="step-desc">Seus pontos serão vinculados ao seu CPF para o Passaporte Cidadão municipal.</p>
+          <span class="step-num">Passo Inicial</span>
+          <h3 class="step-title">Identificação do Avaliador</h3>
+          <p class="step-desc">Digite seu CPF para identificar sua contribuição nos dados oficiais.</p>
         </div>
 
         <div class="input-cpf-group">
-          <label class="input-label" for="cpf-input">Digite apenas os números:</label>
+          <label class="input-label" for="cpf-input">SEU DOCUMENTO (CPF):</label>
           <input 
             type="tel" 
             id="cpf-input" 
@@ -595,7 +526,7 @@
         </div>
 
         <div class="info-tip">
-          🔒 <strong>Segurança LGPD:</strong> Seus dados pessoais são mantidos em sigilo e usados exclusivamente para pontuação cívica e melhoria dos serviços públicos.
+          💡 <strong>Demonstração ao Vivo:</strong> Suas notas serão enviadas via Neon PostgreSQL e computadas no dashboard no projetor em tempo real!
         </div>
 
         <div class="bottom-action">
@@ -603,29 +534,34 @@
         </div>
       </section>
 
-      <!-- ETAPA 2: Vínculo Territorial -->
+      <!-- ETAPA 2: Pergunta 1 - Qualidade dos Slides -->
       <section class="step-section" id="sec-2">
         <div class="step-title-box">
-          <span class="step-num">Etapa 2 de 4</span>
-          <h3 class="step-title">Você é de Promissão?</h3>
-          <p class="step-desc">Isso ajuda a prefeitura a entender o fluxo de munícipes e turistas.</p>
+          <span class="step-num">Pergunta 1 de 3</span>
+          <h3 class="step-title">Qualidade dos Slides</h3>
+          <p class="step-desc">Como você avalia a organização visual, design e clareza dos slides técnicos?</p>
         </div>
 
-        <div class="choices-list">
-          <button class="choice-card selected" onclick="selectPerfil('Morador de Promissão', this)">
-            <div class="choice-icon">🏠</div>
-            <div class="choice-info">
-              <b>Morador de Promissão</b>
-              <span>Resido no município ou na zona rural</span>
-            </div>
+        <div class="rating-picker" id="picker-slides">
+          <button class="rating-btn selected" onclick="selectRating('slides', 5, this)">
+            <div class="rating-btn-left"><div class="rating-badge">5</div><span class="rating-label">Excelente</span></div>
+            <span class="rating-emoji">🤩</span>
           </button>
-
-          <button class="choice-card" onclick="selectPerfil('Visitante / Turista Regional', this)">
-            <div class="choice-icon">🎒</div>
-            <div class="choice-info">
-              <b>Visitante / Turista</b>
-              <span>Vim de outra cidade da região prestigiar o evento</span>
-            </div>
+          <button class="rating-btn" onclick="selectRating('slides', 4, this)">
+            <div class="rating-btn-left"><div class="rating-badge">4</div><span class="rating-label">Bom</span></div>
+            <span class="rating-emoji">🙂</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('slides', 3, this)">
+            <div class="rating-btn-left"><div class="rating-badge">3</div><span class="rating-label">Regular</span></div>
+            <span class="rating-emoji">😐</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('slides', 2, this)">
+            <div class="rating-btn-left"><div class="rating-badge">2</div><span class="rating-label">Ruim</span></div>
+            <span class="rating-emoji">🙁</span>
+          </button>
+          <button class="rating-btn" onclick="selectRating('slides', 1, this)">
+            <div class="rating-btn-left"><div class="rating-badge">1</div><span class="rating-label">Péssimo</span></div>
+            <span class="rating-emoji">😡</span>
           </button>
         </div>
 
@@ -634,34 +570,34 @@
         </div>
       </section>
 
-      <!-- ETAPA 3: Infraestrutura -->
+      <!-- ETAPA 3: Pergunta 2 - Ideia e Solução -->
       <section class="step-section" id="sec-3">
         <div class="step-title-box">
-          <span class="step-num">Etapa 3 de 4</span>
-          <h3 class="step-title">Infraestrutura & Limpeza</h3>
-          <p class="step-desc">Como você avalia os banheiros químicos, praça de alimentação e acessibilidade?</p>
+          <span class="step-num">Pergunta 2 de 3</span>
+          <h3 class="step-title">Ideia & Solução Técnica</h3>
+          <p class="step-desc">Como você avalia a ideia, viabilidade e relevância prática da solução para Promissão?</p>
         </div>
 
-        <div class="rating-picker" id="picker-infra">
-          <button class="rating-btn selected" onclick="selectRating('infra', 5, this)">
+        <div class="rating-picker" id="picker-ideia">
+          <button class="rating-btn selected" onclick="selectRating('ideia', 5, this)">
             <div class="rating-btn-left"><div class="rating-badge">5</div><span class="rating-label">Excelente</span></div>
-            <span class="rating-emoji">🤩</span>
+            <span class="rating-emoji">💡</span>
           </button>
-          <button class="rating-btn" onclick="selectRating('infra', 4, this)">
+          <button class="rating-btn" onclick="selectRating('ideia', 4, this)">
             <div class="rating-btn-left"><div class="rating-badge">4</div><span class="rating-label">Bom</span></div>
-            <span class="rating-emoji">🙂</span>
+            <span class="rating-emoji">👍</span>
           </button>
-          <button class="rating-btn" onclick="selectRating('infra', 3, this)">
+          <button class="rating-btn" onclick="selectRating('ideia', 3, this)">
             <div class="rating-btn-left"><div class="rating-badge">3</div><span class="rating-label">Regular</span></div>
             <span class="rating-emoji">😐</span>
           </button>
-          <button class="rating-btn" onclick="selectRating('infra', 2, this)">
+          <button class="rating-btn" onclick="selectRating('ideia', 2, this)">
             <div class="rating-btn-left"><div class="rating-badge">2</div><span class="rating-label">Ruim</span></div>
-            <span class="rating-emoji">🙁</span>
+            <span class="rating-emoji">👎</span>
           </button>
-          <button class="rating-btn" onclick="selectRating('infra', 1, this)">
+          <button class="rating-btn" onclick="selectRating('ideia', 1, this)">
             <div class="rating-btn-left"><div class="rating-badge">1</div><span class="rating-label">Péssimo</span></div>
-            <span class="rating-emoji">😡</span>
+            <span class="rating-emoji">⚠️</span>
           </button>
         </div>
 
@@ -670,41 +606,41 @@
         </div>
       </section>
 
-      <!-- ETAPA 4: Segurança, Shows e Comentário -->
+      <!-- ETAPA 4: Pergunta 3 - Apresentação Geral e Comentário -->
       <section class="step-section" id="sec-4">
         <div class="step-title-box">
-          <span class="step-num">Etapa 4 de 4</span>
-          <h3 class="step-title">Segurança & Atrações</h3>
-          <p class="step-desc">Sensação de segurança no recinto e qualidade dos shows.</p>
+          <span class="step-num">Pergunta 3 de 3</span>
+          <h3 class="step-title">Apresentação Geral</h3>
+          <p class="step-desc">No geral, como você avalia o domínio, desenvoltura e clareza da equipe?</p>
         </div>
 
-        <div class="rating-picker" id="picker-seg">
-          <button class="rating-btn selected" onclick="selectRating('seg', 5, this)">
+        <div class="rating-picker" id="picker-geral">
+          <button class="rating-btn selected" onclick="selectRating('geral', 5, this)">
             <div class="rating-btn-left"><div class="rating-badge">5</div><span class="rating-label">Excelente</span></div>
-            <span class="rating-emoji">🛡️</span>
+            <span class="rating-emoji">🌟</span>
           </button>
-          <button class="rating-btn" onclick="selectRating('seg', 4, this)">
+          <button class="rating-btn" onclick="selectRating('geral', 4, this)">
             <div class="rating-btn-left"><div class="rating-badge">4</div><span class="rating-label">Bom</span></div>
-            <span class="rating-emoji">👍</span>
+            <span class="rating-emoji">🙂</span>
           </button>
-          <button class="rating-btn" onclick="selectRating('seg', 3, this)">
+          <button class="rating-btn" onclick="selectRating('geral', 3, this)">
             <div class="rating-btn-left"><div class="rating-badge">3</div><span class="rating-label">Regular</span></div>
             <span class="rating-emoji">😐</span>
           </button>
-          <button class="rating-btn" onclick="selectRating('seg', 2, this)">
+          <button class="rating-btn" onclick="selectRating('geral', 2, this)">
             <div class="rating-btn-left"><div class="rating-badge">2</div><span class="rating-label">Ruim</span></div>
-            <span class="rating-emoji">👎</span>
+            <span class="rating-emoji">🙁</span>
           </button>
-          <button class="rating-btn" onclick="selectRating('seg', 1, this)">
+          <button class="rating-btn" onclick="selectRating('geral', 1, this)">
             <div class="rating-btn-left"><div class="rating-badge">1</div><span class="rating-label">Péssimo</span></div>
-            <span class="rating-emoji">⚠️</span>
+            <span class="rating-emoji">😡</span>
           </button>
         </div>
 
-        <textarea id="mobile-comment" class="comment-box" placeholder="Deixe uma sugestão ou elogio para a Prefeitura (opcional)..."></textarea>
+        <textarea id="mobile-comment" class="comment-box" placeholder="Deixe um comentário, sugestão ou elogio para a equipe (opcional)..."></textarea>
 
         <div class="bottom-action">
-          <button id="btn-submit" class="btn-main" onclick="submitMobileFeedback()">Concluir e Ganhar +50 Pts ★</button>
+          <button id="btn-submit" class="btn-main" onclick="submitMobileFeedback()">Enviar Avaliação (+50 Pts) ★</button>
         </div>
       </section>
 
@@ -712,22 +648,22 @@
       <section class="step-section" id="sec-5">
         <div class="success-panel">
           <div class="success-badge">✓</div>
-          <h2 style="font-size: 24px; font-weight: 900; color: var(--b); margin-bottom: 6px;">OBRIGADO POR AVALIAR!</h2>
-          <p style="font-size: 14px; color: var(--mut); line-height: 1.45;">Sua contribuição foi salva com sucesso no banco de dados e enviada ao painel da Prefeitura.</p>
+          <h2 style="font-size: 24px; font-weight: 900; color: var(--b); margin-bottom: 6px;">AVALIAÇÃO RECEBIDA!</h2>
+          <p style="font-size: 14px; color: var(--mut); line-height: 1.45;">Suas notas já foram sincronizadas com o banco Neon PostgreSQL e entraram nos indicadores do painel.</p>
 
           <div class="pts-awarded-card">
-            <span style="font-size: 12px; font-weight: 800; color: var(--g); letter-spacing: 1px; text-transform: uppercase;">Recompensa Cidadã</span>
+            <span style="font-size: 12px; font-weight: 800; color: var(--g); letter-spacing: 1px; text-transform: uppercase;">Participação Cívica</span>
             <div class="pts-awarded-num">+50 PONTOS</div>
-            <span style="font-size: 12px; color: var(--mut);">Creditados no CPF informado</span>
+            <span style="font-size: 12px; color: var(--mut);">Registrados no CPF da banca</span>
           </div>
 
           <div class="passaporte-card">
-            <div class="passaporte-title">Passaporte Cidadão de Promissão</div>
-            <div class="passaporte-level">Nível Ouro da Cidade 🏆</div>
+            <div class="passaporte-title">Apresentação • Projeto de Extensão</div>
+            <div class="passaporte-level">IFSP Birigui & Prefeitura de Promissão</div>
             <div class="progress-bar-bg">
               <div class="progress-bar-fill"></div>
             </div>
-            <small style="color: var(--mut); font-size: 11px;">Faltam 50 pontos para a insígnia Embaixador do Município.</small>
+            <small style="color: var(--mut); font-size: 11px;">Obrigado por contribuir com a nossa banca avaliadora!</small>
           </div>
 
           <button class="btn-main" onclick="resetForm()">Enviar Nova Avaliação</button>
@@ -738,7 +674,6 @@
   </div>
 
   <script>
-    // Carregar Brasão Oficial
     if (typeof BRASAO_PNG !== 'undefined') {
       document.getElementById('mobile-crest').src = BRASAO_PNG;
     } else {
@@ -746,9 +681,9 @@
     }
 
     let currentStep = 1;
-    let selectedPerfil = 'Morador de Promissão';
-    let ratingInfra = 5;
-    let ratingSeguranca = 5;
+    let ratingSlides = 5;
+    let ratingIdeia = 5;
+    let ratingGeral = 5;
 
     function handleCpfInput(el) {
       let v = el.value.replace(/\D/g, '').substring(0, 11);
@@ -782,7 +717,6 @@
         sec.classList.toggle('active', (idx + 1) === step);
       });
 
-      // Atualizar barra de progresso
       for (let i = 1; i <= 4; i++) {
         const b = document.getElementById(`bar-${i}`);
         if (b) b.classList.toggle('active', i <= step);
@@ -791,19 +725,16 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function selectPerfil(val, btn) {
-      selectedPerfil = val;
-      document.querySelectorAll('.choice-card').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-    }
-
     function selectRating(type, val, btn) {
-      if (type === 'infra') {
-        ratingInfra = val;
-        document.querySelectorAll('#picker-infra .rating-btn').forEach(b => b.classList.remove('selected'));
+      if (type === 'slides') {
+        ratingSlides = val;
+        document.querySelectorAll('#picker-slides .rating-btn').forEach(b => b.classList.remove('selected'));
+      } else if (type === 'ideia') {
+        ratingIdeia = val;
+        document.querySelectorAll('#picker-ideia .rating-btn').forEach(b => b.classList.remove('selected'));
       } else {
-        ratingSeguranca = val;
-        document.querySelectorAll('#picker-seg .rating-btn').forEach(b => b.classList.remove('selected'));
+        ratingGeral = val;
+        document.querySelectorAll('#picker-geral .rating-btn').forEach(b => b.classList.remove('selected'));
       }
       btn.classList.add('selected');
     }
@@ -818,10 +749,12 @@
 
       const payload = {
         cpf: rawCpf,
-        perfil: selectedPerfil,
-        notaInfra: ratingInfra,
-        notaSeguranca: ratingSeguranca,
-        notaGeral: Math.round(((ratingInfra + ratingSeguranca) / 2) * 10) / 10,
+        perfil: "Banca Avaliadora",
+        notaSlides: ratingSlides,
+        notaIdeia: ratingIdeia,
+        notaGeral: ratingGeral,
+        notaInfra: ratingSlides,
+        notaSeguranca: ratingIdeia,
         origem: "App Mobile (QR Code)",
         tipo: "mobile",
         comentario: document.getElementById('mobile-comment').value.trim() || undefined,
@@ -836,25 +769,23 @@
         });
 
         if (res.ok) {
-          console.log('✅ Feedback mobile enviado e gravado com sucesso no Neon!');
-        } else {
-          console.warn('Resposta da API:', res.statusText);
+          console.log('✅ Avaliação enviada e gravada com sucesso no Neon!');
         }
       } catch (err) {
         console.error('Erro ao enviar feedback:', err);
       } finally {
         goToStep(5);
         btn.disabled = false;
-        btn.textContent = 'Concluir e Ganhar +50 Pts ★';
+        btn.textContent = 'Enviar Avaliação (+50 Pts) ★';
       }
     }
 
     function resetForm() {
       document.getElementById('cpf-input').value = '';
       document.getElementById('mobile-comment').value = '';
-      ratingInfra = 5;
-      ratingSeguranca = 5;
-      selectedPerfil = 'Morador de Promissão';
+      ratingSlides = 5;
+      ratingIdeia = 5;
+      ratingGeral = 5;
       goToStep(1);
     }
   </script>

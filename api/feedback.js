@@ -30,20 +30,32 @@ module.exports = async (req, res) => {
       if (typeof body === 'string') {
         body = JSON.parse(body);
       }
-      const { cpf, perfil, notaInfra, notaSeguranca, notaGeral, origem, tipo } = body || {};
+      const { cpf, perfil, notaSlides, notaIdeia, notaGeral, notaInfra, notaSeguranca, origem, tipo } = body || {};
 
+      const finalSlides = +(notaSlides || notaInfra || 5);
+      const finalIdeia = +(notaIdeia || notaSeguranca || 5);
+      const finalGeral = +(notaGeral || Math.round(((finalSlides + finalIdeia) / 2) * 10) / 10);
       const finalOrigem = origem || (tipo === 'totem' ? 'Totem Físico #01' : 'App Mobile (QR Code)');
 
       const result = await db.query(
-        `INSERT INTO feedbacks (cpf, perfil, nota_infra, nota_seguranca, nota_geral, origem, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, NOW())
-         RETURNING id, cpf, perfil, nota_infra AS "notaInfra", nota_seguranca AS "notaSeguranca", nota_geral AS "notaGeral", origem, created_at AS "timestamp"`,
+        `INSERT INTO feedbacks (cpf, perfil, nota_infra, nota_seguranca, nota_geral, nota_slides, nota_ideia, nota_apresentacao, origem, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+         RETURNING id, cpf, perfil, 
+                   nota_slides AS "notaSlides", 
+                   nota_ideia AS "notaIdeia", 
+                   nota_apresentacao AS "notaGeral", 
+                   nota_infra AS "notaInfra", 
+                   nota_seguranca AS "notaSeguranca", 
+                   origem, created_at AS "timestamp"`,
         [
           cpf || '48192038194',
-          perfil || 'Morador de Promissão',
-          notaInfra || 5,
-          notaSeguranca || 5,
-          notaGeral || 5.0,
+          perfil || 'Avaliador / Banca',
+          finalSlides,
+          finalIdeia,
+          finalGeral,
+          finalSlides,
+          finalIdeia,
+          finalGeral,
           finalOrigem
         ]
       );
@@ -65,13 +77,25 @@ module.exports = async (req, res) => {
       let params;
 
       if (sinceId > 0) {
-        query = `SELECT id, cpf, perfil, nota_infra AS "notaInfra", nota_seguranca AS "notaSeguranca", nota_geral AS "notaGeral", origem, created_at AS "timestamp"
+        query = `SELECT id, cpf, perfil, 
+                        COALESCE(nota_slides, nota_infra, 5) AS "notaSlides", 
+                        COALESCE(nota_ideia, nota_seguranca, 5) AS "notaIdeia", 
+                        COALESCE(nota_apresentacao, nota_geral, 5.0) AS "notaGeral",
+                        COALESCE(nota_infra, nota_slides, 5) AS "notaInfra", 
+                        COALESCE(nota_seguranca, nota_ideia, 5) AS "notaSeguranca", 
+                        origem, created_at AS "timestamp"
                  FROM feedbacks
                  WHERE id > $1
                  ORDER BY id ASC`;
         params = [sinceId];
       } else {
-        query = `SELECT id, cpf, perfil, nota_infra AS "notaInfra", nota_seguranca AS "notaSeguranca", nota_geral AS "notaGeral", origem, created_at AS "timestamp"
+        query = `SELECT id, cpf, perfil, 
+                        COALESCE(nota_slides, nota_infra, 5) AS "notaSlides", 
+                        COALESCE(nota_ideia, nota_seguranca, 5) AS "notaIdeia", 
+                        COALESCE(nota_apresentacao, nota_geral, 5.0) AS "notaGeral",
+                        COALESCE(nota_infra, nota_slides, 5) AS "notaInfra", 
+                        COALESCE(nota_seguranca, nota_ideia, 5) AS "notaSeguranca", 
+                        origem, created_at AS "timestamp"
                  FROM feedbacks
                  ORDER BY id DESC
                  LIMIT 50`;

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terminal de Autoatendimento Oficial - Prefeitura Municipal de Promissão</title>
   <script src="logos_data.js"></script>
+  <script src="libs/realtime.js"></script>
   <style>
     :root {
       --promissao-green: #00843D;
@@ -520,6 +521,10 @@
     <div class="kiosk-event-tag">
       <span class="event-badge">Terminal Oficial #01</span>
       <div class="event-name">Festa do Peão de Promissão 2026</div>
+      <div id="kiosk-sync-pill" style="font-size: 11px; margin-top: 5px; color: #059669; font-weight: 700; display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
+        <span id="kiosk-sync-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #F59E0B; display: inline-block;"></span>
+        <span id="kiosk-sync-text">Conectando ao painel...</span>
+      </div>
     </div>
   </header>
 
@@ -722,6 +727,28 @@
       document.getElementById('kiosk-crest-img').src = 'brasao-rodape.png';
     }
 
+    // Inicialização da sincronização com a Apresentação (Nuvem / Multi-dispositivos)
+    if (window.PromissaoRealtime) {
+      window.PromissaoRealtime.init({
+        role: 'totem',
+        onStatus: (st) => {
+          const dot = document.getElementById('kiosk-sync-dot');
+          const txt = document.getElementById('kiosk-sync-text');
+          if (dot && txt) {
+            if (st.connected) {
+              dot.style.background = '#10B981';
+              txt.textContent = '🟢 Banco Neon Conectado';
+              txt.style.color = '#059669';
+            } else {
+              dot.style.background = '#F59E0B';
+              txt.textContent = '🟡 Conectando ao Banco...';
+              txt.style.color = '#D97706';
+            }
+          }
+        }
+      });
+    }
+
     // Estado da Coleta
     let currentStep = 1;
     let kioskCpf = "";
@@ -803,11 +830,15 @@
         origem: "Totem Físico #01 (Praça Central)"
       };
 
-      // Disparar sincronização via BroadcastChannel e localStorage
-      const bc = new BroadcastChannel('promissao_eventos_channel');
-      bc.postMessage(payload);
-      localStorage.setItem('promissao_last_feedback', JSON.stringify(payload));
-      localStorage.setItem('promissao_feedback_trigger', Date.now().toString());
+      // Disparar sincronização multi-dispositivo (Nuvem MQTT) e local (BroadcastChannel / LocalStorage)
+      if (window.PromissaoRealtime) {
+        window.PromissaoRealtime.sendFeedback(payload);
+      } else {
+        const bc = new BroadcastChannel('promissao_eventos_channel');
+        bc.postMessage(payload);
+        localStorage.setItem('promissao_last_feedback', JSON.stringify(payload));
+        localStorage.setItem('promissao_feedback_trigger', Date.now().toString());
+      }
 
       // Exibir Tela de Sucesso
       const modal = document.getElementById('success-screen');

@@ -10,6 +10,7 @@
 <script src="libs/OrbitControls.js"></script>
 <script src="libs/RoomEnvironment.js"></script>
 <script src="libs/totem_obj_data.js"></script>
+<script src="libs/realtime.js"></script>
 <style>
 :root{--g:#00843D;--gd:#006631;--b:#005A9C;--bd:#003E6B;--y:#FFD100;--ink:#0F1B2D;--mut:#5B6675;--line:#DCE1E7;--soft:#F4F6F8;--red:#C62828}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -308,7 +309,14 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
   <div class="flag"></div>
   <header class="topbar">
     <div class="brand"><img class="crest-img" alt="Brasão de Promissão"><div><small>Prefeitura Municipal de</small><strong>PROMISSÃO / SP</strong></div></div>
-    <div class="sec-label"><span id="secnum">00</span><b id="secname">Abertura</b></div>
+    <div style="display:flex;align-items:center;gap:18px;">
+      <div id="cloud-pill" style="display:inline-flex;align-items:center;gap:8px;background:#F0FDF4;border:1px solid #BBF7D0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;color:#166534;cursor:pointer;user-select:none;transition:all .2s;" onclick="toggleQrModal()" title="Clique para abrir QR Code do Totem">
+        <span id="cloud-dot" style="width:9px;height:9px;border-radius:50%;background:#10B981;box-shadow:0 0 8px rgba(16,185,129,0.7);display:inline-block;"></span>
+        <span id="cloud-status-text">Totem Nuvem</span>
+        <span style="font-size:11px;background:#DCFCE7;padding:2px 7px;border-radius:6px;color:#15803D;">QR (Q)</span>
+      </div>
+      <div class="sec-label"><span id="secnum">00</span><b id="secname">Abertura</b></div>
+    </div>
   </header>
 
   <main class="slides">
@@ -482,7 +490,7 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
           </div>
           <div class="pnl"><h5>Últimas avaliações recebidas</h5><ul class="feed" id="feed"></ul></div>
         </div>
-        <div class="empty" id="empty"><span class="ic" data-i="kiosk"></span><b>Aguardando a primeira avaliação no totem</b><p>Abra o terminal de autoatendimento (tecla <b>T</b>) e envie uma resposta.</p><div class="dotsw"><i></i><i></i><i></i></div></div>
+        <div class="empty" id="empty"><span class="ic" data-i="kiosk"></span><b>Aguardando a primeira avaliação no totem</b><p>Abra o terminal (tecla <b>T</b>) ou escaneie no celular/outro PC (tecla <b>Q</b>) e envie uma resposta.</p><div class="dotsw"><i></i><i></i><i></i></div></div>
       </div>
     </section>
 
@@ -668,7 +676,7 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
   <footer class="bottombar">
     <div>Projeto de Extensão • TSI • IFSP Campus Birigui • 2026</div>
     <div class="dots" id="dots"></div>
-    <div class="count"><small>T: abrir totem • F: tela cheia</small><span id="cnt">01 / 11</span></div>
+    <div class="count"><small>T: totem • Q: QR Code Totem • F: tela cheia</small><span id="cnt">01 / 11</span></div>
   </footer>
 
   <div id="takeover">
@@ -682,6 +690,29 @@ h2.title em,h1 em{font-style:normal;color:var(--b)}
       </div>
     </div>
     <div class="to-timer"><i></i></div>
+  </div>
+
+  <!-- Modal de QR Code para Conectar Totem Remoto -->
+  <div id="qr-modal" style="display:none;position:absolute;inset:0;background:rgba(15,27,45,0.85);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(5px);">
+    <div style="background:#fff;border-radius:18px;padding:36px 44px;max-width:540px;width:90%;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,0.45);border-top:6px solid var(--g);position:relative;">
+      <button onclick="toggleQrModal()" style="position:absolute;top:16px;right:20px;border:none;background:transparent;font-size:28px;cursor:pointer;color:var(--mut);line-height:1;" title="Fechar (ESC)">&times;</button>
+      <div style="font-size:12px;font-weight:800;letter-spacing:2px;color:var(--g);text-transform:uppercase;margin-bottom:6px;">Demonstração Multi-Dispositivos</div>
+      <h3 style="font-size:24px;font-weight:900;color:var(--ink);margin-bottom:8px;">Conecte o Totem no Celular ou Tablet</h3>
+      <p style="font-size:14px;color:var(--mut);margin-bottom:20px;line-height:1.5;">Aponte a câmera do celular para o QR Code abaixo. Ao votar no totem pelo celular, o slide no computador mudará instantaneamente:</p>
+      
+      <div style="background:#F8FAFC;padding:16px;border-radius:14px;display:inline-block;border:2px dashed var(--line);margin-bottom:16px;box-shadow:inset 0 2px 6px rgba(0,0,0,0.03);">
+        <img id="qr-img" src="" alt="QR Code Totem" style="width:210px;height:210px;display:block;">
+      </div>
+
+      <div style="background:#EFF6FF;border:1px solid #BFDBFE;padding:10px 14px;border-radius:8px;font-size:12px;color:#1E40AF;word-break:break-all;margin-bottom:20px;font-family:monospace;font-weight:600;" id="qr-url-text">
+        Carregando link...
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button onclick="copyTotemUrl()" id="btn-copy-totem" style="padding:10px 22px;border-radius:8px;background:var(--soft);border:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .2s;">Copiar Link</button>
+        <button onclick="openTotemWindow()" style="padding:10px 22px;border-radius:8px;background:var(--g);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;">Abrir Aqui (Nova Aba)</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -764,7 +795,9 @@ addEventListener('keydown', e => {
   else if (['arrowleft','pageup','backspace'].includes(k)) goTo(cur-1);
   else if (k === 'home') goTo(0);
   else if (k === 'end') goTo(slides.length-1);
-  else if (k === 't') window.open('totem_kiosk.html', '_blank');
+  else if (k === 't') window.open(window.PromissaoRealtime ? window.PromissaoRealtime.getTotemUrl() : 'totem_kiosk.html', '_blank');
+  else if (k === 'q') toggleQrModal();
+  else if (k === 'escape') { const m = $('qr-modal'); if (m && m.style.display === 'flex') m.style.display = 'none'; }
   else if (k === 'f') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
   else if (k === 'd') simulate();
   else if (k === 'r' && e.shiftKey) resetLive();
@@ -858,6 +891,57 @@ function simulate(){
   handleIncoming({ cpf, perfil: Math.random() < .65 ? 'Morador de Promissão' : 'Visitante / Turista Regional',
     notaInfra: 1 + Math.floor(Math.random()*5), notaSeguranca: 2 + Math.floor(Math.random()*4), timestamp: new Date().toISOString(), origem: 'Simulação' });
 }
+
+/* ================= Modal QR Code e Nuvem Multi-Dispositivo ================= */
+function toggleQrModal() {
+  const modal = $('qr-modal');
+  if (!modal) return;
+  const isShown = modal.style.display === 'flex';
+  if (isShown) {
+    modal.style.display = 'none';
+  } else {
+    modal.style.display = 'flex';
+    const totemUrl = window.PromissaoRealtime ? window.PromissaoRealtime.getTotemUrl() : (window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'totem_kiosk.html');
+    $('qr-url-text').textContent = totemUrl;
+    $('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(totemUrl)}`;
+  }
+}
+function copyTotemUrl() {
+  const url = $('qr-url-text').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = $('btn-copy-totem');
+    btn.textContent = 'Copiado!';
+    setTimeout(() => { btn.textContent = 'Copiar Link'; }, 2000);
+  });
+}
+function openTotemWindow() {
+  const url = window.PromissaoRealtime ? window.PromissaoRealtime.getTotemUrl() : 'totem_kiosk.html';
+  window.open(url, '_blank');
+}
+
+// Inicializar sincronização em tempo real (Nuvem multi-dispositivo)
+if (window.PromissaoRealtime) {
+  window.PromissaoRealtime.init({
+    role: 'slide',
+    onFeedback: handleIncoming,
+    onStatus: (st) => {
+      const dot = $('cloud-dot');
+      const txt = $('cloud-status-text');
+      const pill = $('cloud-pill');
+      if (dot && txt) {
+        if (st.connected) {
+          dot.style.background = '#10B981';
+          txt.textContent = `Totem Nuvem (${st.room})`;
+          if (pill) pill.title = `Nuvem Conectada ao vivo! Sala: "${st.room}". Clique para ver QR Code.`;
+        } else {
+          dot.style.background = '#F59E0B';
+          txt.textContent = 'Conectando...';
+        }
+      }
+    }
+  });
+}
+
 try { new BroadcastChannel('promissao_eventos_channel').onmessage = e => handleIncoming(e.data); } catch(e) {}
 addEventListener('storage', e => {
   if (e.key === 'promissao_feedback_trigger') { const l = localStorage.getItem('promissao_last_feedback'); if (l) handleIncoming(JSON.parse(l)); }

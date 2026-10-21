@@ -1,3 +1,5 @@
+node_modules/
+
 # Arquivos acadêmicos locais pesados
 *.docx
 *.pdf
@@ -5,3 +7,6 @@
 # Temporários
 *.tmp
 *.log
+
+.agents/
+skills-lock.json

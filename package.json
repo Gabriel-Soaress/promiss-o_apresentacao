@@ -1,0 +1,14 @@
+{
+  "name": "promissao-apresentacao",
+  "version": "1.0.0",
+  "description": "Sistema Integrado de Avaliação de Eventos - Promissão/SP",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "pg": "^8.13.1"
+  }
+}

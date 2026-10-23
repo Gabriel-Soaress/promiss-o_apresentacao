@@ -354,6 +354,24 @@ h2.title em,h1 em{font-style:normal;color:var(--secondary)}
 .to-timer i{display:block;height:100%;width:0;background:var(--y)}
 #takeover.in .to-timer i{animation:tmr 2.3s linear forwards}
 @keyframes tmr{to{width:100%}}
+
+/* ---------- S10 Novo Slide de Resultados (Protótipo & Testes) ---------- */
+.res-grid{display:grid;grid-template-columns:820px 1fr;gap:50px;margin-top:28px;align-items:center}
+.res-media-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;background:var(--soft);border:1px solid var(--line);padding:18px;border-radius:18px;box-shadow:0 16px 36px rgba(56,40,120,0.06)}
+.res-media-card{display:flex;flex-direction:column;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.res-media-header{padding:10px 14px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--primary);background:var(--cover-bg);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.res-media-header span{display:inline-flex;align-items:center;gap:6px}
+.res-media-box{height:460px;background:#0D0B14;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.res-media-box video,.res-media-box img{width:100%;height:100%;object-fit:cover;display:block}
+.res-media-card footer{padding:12px 14px;font-size:13px;color:var(--mut);line-height:1.35;font-weight:600;background:#fff}
+.res-cards{display:flex;flex-direction:column;gap:18px}
+.res-card{background:#fff;border:1px solid var(--line);border-left:6px solid var(--primary);padding:20px 24px;border-radius:8px;box-shadow:0 6px 18px rgba(31,25,46,0.04)}
+.res-card.c2{border-left-color:var(--secondary)}
+.res-card.c3{border-left-color:var(--accent)}
+.res-card-tag{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--secondary);display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.res-card h3{font-size:22px;font-weight:900;color:var(--ink);line-height:1.2}
+.res-card p{font-size:16px;color:var(--mut);line-height:1.45;margin-top:6px}
+
 </style>
 </head>
 <body>
@@ -531,11 +549,11 @@ h2.title em,h1 em{font-style:normal;color:var(--secondary)}
       </div>
     </section>
 
-    <!-- S6 RESULTADOS -->
-    <section class="slide" data-sec="Resultados">
+    <!-- S6 DESENVOLVIMENTO: TELEMETRIA AO VIVO -->
+    <section class="slide" data-sec="Desenvolvimento">
       <div class="live-head">
         <div>
-          <div class="eyebrow rv">04 — Resultados • Telemetria em Tempo Real</div>
+          <div class="eyebrow rv">03 — Desenvolvimento • Telemetria & Painel em Tempo Real</div>
           <h2 class="title rv" style="--d:1">Painel da Prefeitura <em>em Tempo Real</em></h2>
         </div>
         <div class="live-pill rv" style="--d:2"><i></i>Ao vivo • Totem #01</div>
@@ -689,6 +707,57 @@ h2.title em,h1 em{font-style:normal;color:var(--secondary)}
               <div><strong style="font-size:17px">Acessibilidade WCAG 2.1 AA</strong><p style="font-size:14px;color:var(--mut);margin-top:2px">Contrastes nítidos e zonas de toque mínimas de 48x48px para idosos e munícipes com baixa visão.</p></div>
             </li>
           </ul>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- S10 RESULTADOS: PROTÓTIPO FÍSICO EM ACRÍLICO & VALIDAÇÃO -->
+    <section class="slide" data-sec="Resultados">
+      <div class="eyebrow rv">04 — Resultados Obtidos até o Momento</div>
+      <h2 class="title rv" style="--d:1">Protótipo Físico em Acrílico &amp; <em>Validação Prática</em></h2>
+      <div class="res-grid">
+        <div class="res-media-wrap rv s" style="--d:2">
+          <!-- Coluna 1: Vídeo da Usinagem / Corte a Laser -->
+          <div class="res-media-card">
+            <div class="res-media-header">
+              <span><span class="ic" data-i="touch"></span> Corte a Laser CNC</span>
+              <b style="color:var(--secondary)">Vídeo</b>
+            </div>
+            <div class="res-media-box">
+              <video src="video_corte_laser.mp4" autoplay loop muted playsinline controls></video>
+            </div>
+            <footer>Usinagem precisa das peças e encaixes em acrílico da estrutura do quiosque.</footer>
+          </div>
+          <!-- Coluna 2: Foto do Protótipo em Acrílico -->
+          <div class="res-media-card">
+            <div class="res-media-header">
+              <span><span class="ic" data-i="kiosk"></span> Protótipo Físico</span>
+              <b style="color:var(--accent)">Acrílico</b>
+            </div>
+            <div class="res-media-box">
+              <img src="foto%20prototipo.jpeg" alt="Protótipo do Totem em Acrílico">
+            </div>
+            <footer>Estrutura física montada com suporte integrado para tablet touch e teclado.</footer>
+          </div>
+        </div>
+
+        <div class="res-cards">
+          <div class="res-card rv" style="--d:3">
+            <div class="res-card-tag"><span class="ic" data-i="kiosk"></span> Hardware &amp; Materialização</div>
+            <h3>Construção Física do Protótipo em Acrílico</h3>
+            <p>Evolução da modelagem 3D digital para a manufatura real: gabinete cortado a laser com excelente acabamento, garantindo estabilidade, ergonomia e proteção para autoatendimento no recinto de eventos.</p>
+          </div>
+          <div class="res-card c2 rv" style="--d:4">
+            <div class="res-card-tag"><span class="ic" data-i="refresh"></span> Software &amp; Testes Reais</div>
+            <h3>Primeiros Testes Práticos em Execução</h3>
+            <p>O fluxo completo de ponta a ponta já foi testado e validado nesta própria apresentação: coleta rápida via CPF mascarado, sincronização bidirecional em tempo real e alimentação imediata do painel de telemetria.</p>
+          </div>
+          <div class="res-card c3 rv" style="--d:5">
+            <div class="res-card-tag"><span class="ic" data-i="shield"></span> Engenharia &amp; Conformidade</div>
+            <h3>Validação dos Requisitos e LGPD</h3>
+            <p>Garantia de latência de resposta inferior a 200ms para evitar filas, arquitetura 100% aderente à LGPD com anonimização nativa, além de resiliência a oscilações de internet através de persistência local segura.</p>
+          </div>
         </div>
       </div>
     </section>

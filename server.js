@@ -20,6 +20,10 @@ app.get(['/', '/slide', '/slides'], (req, res) => {
   res.sendFile(path.join(__dirname, 'apresentacao_tecnica_promissao.html'));
 });
 
+app.get(['/mostra', '/extensao', '/mostra-extensao'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'apresentacao_mostra_extensao.html'));
+});
+
 app.get(['/totem', '/totem_kiosk'], (req, res) => {
   res.sendFile(path.join(__dirname, 'totem_kiosk.html'));
 });
@@ -31,9 +35,10 @@ app.get(['/app', '/avaliar', '/mobile'], (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n======================================================`);
   console.log(`🚀 Servidor Promissão rodando na porta ${PORT}`);
-  console.log(`📊 Apresentação: http://localhost:${PORT}/slides`);
-  console.log(`🖥️ Totem Kiosk:  http://localhost:${PORT}/totem`);
-  console.log(`📱 App Cidadão:  http://localhost:${PORT}/app`);
-  console.log(`🗄️ Banco de Dados: Neon PostgreSQL Conectado`);
+  console.log(`📊 Apresentação Oficial: http://localhost:${PORT}/slides`);
+  console.log(`🎓 Mostra de Extensão:   http://localhost:${PORT}/mostra`);
+  console.log(`🖥️ Totem Kiosk:          http://localhost:${PORT}/totem`);
+  console.log(`📱 App Cidadão:          http://localhost:${PORT}/app`);
+  console.log(`🗄️ Banco de Dados:       Neon PostgreSQL Conectado`);
   console.log(`======================================================\n`);
 });

@@ -10,6 +10,9 @@
     { "source": "/totem_kiosk", "destination": "/totem_kiosk.html" },
     { "source": "/app", "destination": "/app_cidadao.html" },
     { "source": "/avaliar", "destination": "/app_cidadao.html" },
-    { "source": "/mobile", "destination": "/app_cidadao.html" }
+    { "source": "/mobile", "destination": "/app_cidadao.html" },
+    { "source": "/workshop", "destination": "/workshop_ia_comercio/workshop_ia_comercio/02_SLIDES_WORKSHOP.html" },
+    { "source": "/apostila", "destination": "/workshop_ia_comercio/workshop_ia_comercio/01_APOSTILA_GUIA_RAPIDO.html" },
+    { "source": "/lib/:path*", "destination": "/workshop_ia_comercio/workshop_ia_comercio/lib/:path*" }
   ]
 }

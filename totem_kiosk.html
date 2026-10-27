@@ -505,6 +505,257 @@
       background: var(--promissao-green);
       transition: width 3s linear;
     }
+
+    /* ================= RESPONSIVIDADE MOBILE & TABLET ================= */
+    @media (max-width: 768px) {
+      body {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      header.kiosk-header {
+        height: auto;
+        padding: 10px 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .kiosk-brand {
+        gap: 10px;
+      }
+
+      .kiosk-crest {
+        height: 40px;
+      }
+
+      .kiosk-inst-sub {
+        font-size: 10px;
+        letter-spacing: 0.8px;
+      }
+
+      .kiosk-inst-main {
+        font-size: 14px;
+        line-height: 1.15;
+      }
+
+      .kiosk-event-tag {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        border-top: 1px solid #F3F4F6;
+        padding-top: 6px;
+        margin-top: 2px;
+      }
+
+      .event-name {
+        display: none;
+      }
+
+      #kiosk-sync-pill {
+        margin-top: 0 !important;
+      }
+
+      .step-track-container {
+        height: auto;
+        padding: 8px 12px;
+        gap: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .step-indicator {
+        font-size: 11px;
+        gap: 5px;
+        white-space: nowrap;
+      }
+
+      .step-circle {
+        width: 22px;
+        height: 22px;
+        font-size: 11px;
+        border-radius: 50%;
+      }
+
+      main.kiosk-body {
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+
+      .kiosk-step-view {
+        position: relative;
+        width: 100%;
+        height: auto;
+        min-height: calc(100dvh - 175px);
+        padding: 16px;
+        border-radius: 8px;
+        display: none;
+        transform: none;
+        opacity: 1;
+      }
+
+      .kiosk-step-view.active {
+        display: flex;
+        transform: none;
+      }
+
+      .step-header {
+        padding-bottom: 10px;
+        margin-bottom: 12px;
+      }
+
+      .step-title {
+        font-size: 17px;
+        line-height: 1.2;
+      }
+
+      .step-desc {
+        font-size: 12.5px;
+        margin-top: 3px;
+      }
+
+      /* Passo 1: CPF e Teclado no Mobile */
+      .cpf-container-layout {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .cpf-display-box {
+        height: 50px;
+        font-size: 22px;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+      }
+
+      .numpad-grid {
+        gap: 8px;
+      }
+
+      .num-btn {
+        height: 48px;
+        font-size: 21px;
+        border-radius: 6px;
+      }
+
+      .num-btn.btn-clear,
+      .num-btn.btn-demo {
+        font-size: 12px;
+      }
+
+      /* Passos 2, 3 e 4: Escala de Avaliação em Barras Horizontais Touch */
+      .ratings-grid-5 {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 4px 0 10px;
+      }
+
+      .rating-card-btn {
+        height: 56px;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0 16px;
+        gap: 12px;
+        border-radius: 8px;
+      }
+
+      .rating-emoji {
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .rating-title {
+        font-size: 15px;
+        flex: 1;
+        text-align: left;
+      }
+
+      .rating-sub {
+        font-size: 11px;
+        background: #F3F4F6;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+
+      .rating-card-btn.selected .rating-sub {
+        background: #DCFCE7;
+        color: #166534;
+      }
+
+      /* Botões Inferiores no Mobile */
+      .step-actions-footer {
+        padding-top: 12px;
+        margin-top: auto;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      #view-step-1 .step-actions-footer span {
+        display: none;
+      }
+
+      .btn-step-prev {
+        padding: 13px 16px;
+        font-size: 13px;
+        border-radius: 6px;
+      }
+
+      .btn-step-next {
+        flex: 1;
+        justify-content: center;
+        padding: 14px 16px;
+        font-size: 13.5px;
+        border-radius: 6px;
+        text-align: center;
+      }
+
+      footer.kiosk-footer {
+        height: auto;
+        padding: 10px 14px;
+        flex-direction: column;
+        gap: 3px;
+        text-align: center;
+        font-size: 10.5px;
+      }
+
+      footer.kiosk-footer div:last-child {
+        display: none;
+      }
+
+      /* Modal de Sucesso no Mobile */
+      .success-modal {
+        padding: 28px 20px;
+        width: 92%;
+        border-radius: 10px;
+      }
+
+      .success-icon-badge {
+        width: 56px;
+        height: 56px;
+        font-size: 30px;
+        margin-bottom: 14px;
+      }
+
+      .success-h1 {
+        font-size: 19px;
+      }
+
+      .success-txt {
+        font-size: 13.5px;
+        margin-bottom: 18px;
+      }
+
+      .points-callout {
+        font-size: 13.5px;
+        padding: 10px 14px;
+        margin-bottom: 18px;
+      }
+    }
   </style>
 </head>
 <body>

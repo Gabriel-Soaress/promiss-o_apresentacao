@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA na Prática – Gabriel Soares</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="lib/reveal.css">
+<style>
+  :root{
+    --ink:#0b1220; --body:#1e293b; --muted:#5b6678; --line:#d5dbe3;
+    --paper:#ffffff; --soft:#f3f5f8; --blue:#1d4ed8; --blue-soft:#e8efff;
+    --red:#b91c1c; --green:#15803d; --amber:#b45309;
+    --dark:#0b1220; --dark-2:#141d30;
+  }
+  .reveal-viewport{background:var(--paper)}
+  .reveal{font-family:'Inter',system-ui,sans-serif;color:var(--body);font-size:34px;line-height:1.45}
+  .reveal .slides{text-align:left}
+  .reveal .slides section{height:100%;padding:90px 110px 80px;box-sizing:border-box}
+  .reveal h1,.reveal h2,.reveal h3{font-family:'Inter',sans-serif;text-transform:none;color:var(--ink);letter-spacing:-.025em;margin:0}
+  .reveal h1{font-size:92px;font-weight:900;line-height:1.02}
+  .reveal h2{font-size:68px;font-weight:800;line-height:1.08;margin-bottom:28px}
+  .reveal h3{font-size:36px;font-weight:700;margin-bottom:10px}
+  .reveal p{margin:0 0 18px}
+  .reveal code,.mono{font-family:'JetBrains Mono',monospace}
+  .reveal strong{color:var(--ink)}
+
+  /* elementos fixos */
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:22px;display:flex;align-items:center;gap:14px}
+  .kicker::before{content:"";width:46px;height:4px;background:var(--blue)}
+  .lead{font-size:38px;color:var(--body);max-width:1450px;line-height:1.45}
+  .muted{color:var(--muted)}
+  .source{position:absolute;left:110px;bottom:42px;font-size:19px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+  .timer{position:absolute;right:110px;top:46px;font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--muted);border:2px solid var(--line);padding:6px 14px}
+
+  /* grades */
+  .grid{display:grid;gap:28px;margin-top:36px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--soft);border:2px solid var(--line);padding:34px 36px;border-radius:2px}
+  .card.accent{background:var(--blue-soft);border-color:var(--blue)}
+  .card.bad{border-left:10px solid var(--red)}
+  .card.good{border-left:10px solid var(--green)}
+  .card h3{display:flex;align-items:center;gap:14px}
+  .card p{font-size:28px;color:var(--body);margin:0}
+  .card .lbl{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:block}
+  .bad .lbl{color:var(--red)} .good .lbl{color:var(--green)}
+  .ico{width:40px;height:40px;stroke-width:2;color:var(--blue);flex:none}
+
+  /* slides escuros (dados) */
+  .reveal section.dark{color:#cbd5e1}
+  .reveal section.dark h1,.reveal section.dark h2,.reveal section.dark h3,.reveal section.dark strong{color:#fff}
+  .dark .kicker{color:#7aa2ff}.dark .kicker::before{background:#7aa2ff}
+  .dark .source,.dark .muted{color:#8492a6}
+  .dark .timer{color:#8492a6;border-color:#2a3550}
+  .big-number{font-size:260px;font-weight:900;letter-spacing:-.05em;line-height:.9;color:#fff}
+  .big-number .unit{color:#7aa2ff}
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:50px}
+  .stat .n{font-size:130px;font-weight:900;color:#fff;letter-spacing:-.04em;line-height:1}
+  .stat .n .unit{color:#7aa2ff}
+  .stat .d{font-size:28px;color:#cbd5e1;margin-top:12px;border-top:3px solid #2a3550;padding-top:16px}
+  .stat.warn .n,.stat.warn .n .unit{color:#fca5a5}
+
+  /* capa */
+  .cover{display:flex;flex-direction:column;justify-content:space-between}
+  .cover-meta{display:flex;gap:70px;border-top:3px solid var(--ink);padding-top:30px;font-size:26px}
+  .cover-meta span{display:block;font-family:'JetBrains Mono',monospace;font-size:17px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .cover-meta b{color:var(--ink)}
+
+  /* tabela */
+  table.t{width:100%;border-collapse:collapse;font-size:28px;margin-top:20px}
+  .t th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:19px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:3px solid var(--ink);padding:14px 18px}
+  .t td{border-bottom:2px solid var(--line);padding:20px 18px;vertical-align:top}
+  .t td:first-child{font-weight:700;color:var(--ink)}
+
+  /* R-C-O-F */
+  .rcof{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:40px}
+  .rcof .col{border-top:10px solid var(--blue);background:var(--soft);padding:30px}
+  .rcof .L{font-size:120px;font-weight:900;color:var(--blue);line-height:1}
+  .rcof .N{font-size:34px;font-weight:800;color:var(--ink);margin:8px 0 6px}
+  .rcof .Q{font-size:24px;font-style:italic;color:var(--muted);margin-bottom:12px}
+  .rcof .D{font-size:25px}
+
+  /* prompt / chat */
+  .prompt{background:var(--dark);color:#e5e7eb;font-family:'JetBrains Mono',monospace;font-size:28px;line-height:1.6;padding:34px 40px;border-radius:2px;white-space:pre-wrap}
+  .prompt .tag{display:inline-block;min-width:44px;font-weight:700;color:#7aa2ff}
+  .prompt .hl{color:#fde68a}
+  .chat{background:var(--soft);border:2px solid var(--line);padding:30px 34px;font-size:27px;min-height:150px}
+  .chat .who{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:10px}
+
+  /* códigos */
+  .codes{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:30px}
+  .code{background:var(--soft);border:2px solid var(--line);border-top:8px solid var(--blue);padding:34px 30px;min-height:290px}
+  .code .c{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:38px;color:var(--blue)}
+  .code .w{font-size:31px;font-weight:800;color:var(--ink);margin:18px 0 8px}
+  .code .u{font-size:26px;color:var(--muted);line-height:1.4}
+
+  /* listas */
+  .steps{list-style:none;margin:30px 0 0;padding:0;counter-reset:s}
+  .steps li{counter-increment:s;display:flex;gap:26px;align-items:flex-start;padding:20px 0;border-bottom:2px solid var(--line);font-size:32px}
+  .steps li::before{content:counter(s,decimal-leading-zero);font-family:'JetBrains Mono',monospace;font-weight:700;color:#fff;background:var(--ink);padding:4px 12px;font-size:24px;margin-top:4px}
+
+  .callout{border-left:10px solid var(--amber);background:#fff7ed;padding:24px 30px;font-size:28px;margin-top:30px}
+  .callout b{color:var(--amber)}
+
+  .activity{position:absolute;right:110px;top:90px;background:var(--blue);color:#fff;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;padding:12px 22px}
+  .split{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center;height:100%}
+  .quote{font-size:64px;font-weight:800;line-height:1.15;color:var(--ink);letter-spacing:-.02em}
+
+  /* barra de progresso */
+  .reveal .progress{height:6px;color:var(--blue)}
+  .reveal .slide-number{font-family:'JetBrains Mono',monospace;background:transparent;color:var(--muted);font-size:18px;right:130px;left:auto;bottom:30px}
+  .reveal .controls{color:var(--blue)}
+  .reveal .fragment.highlight-blue.visible{color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- ============ ATO 1 ============ -->
+
+<!-- S1 CAPA -->
+<section class="cover">
+  <div>
+    <div class="kicker">Workshop · Sala E109 · Técnico em Comércio</div>
+    <h1>IA na Prática</h1>
+    <p class="lead" style="font-size:44px;margin-top:26px;max-width:1500px">Como transformar a Inteligência Artificial no seu principal <strong>assistente de negócios e rotina</strong></p>
+  </div>
+  <div class="cover-meta">
+    <div><span>Ministrante</span><b>Gabriel Soares</b></div>
+    <div><span>Duração</span><b>120 minutos · mão na massa</b></div>
+    <div><span>Entrega</span><b>Um anúncio pronto, feito com IA</b></div>
+  </div>
+  <aside class="notes">Hoje ninguém só assiste. Em 2 horas cada um sai com um anúncio pronto, feito por vocês com IA. Apostila em PDF já está na pasta de cada computador.</aside>
+</section>
+
+<!-- S2 PERGUNTA -->
+<section data-background-color="#0b1220" class="dark">
+  <div class="timer">00–10 min</div>
+  <div class="kicker">Antes de começar</div>
+  <h1 style="font-size:120px;color:#fff">Quem aqui usou IA<br>esta semana?</h1>
+  <p class="fragment fade-up lead" style="color:#cbd5e1;margin-top:50px;font-size:44px">…e quem usou para algo <strong>além de trabalho de escolar?</strong></p>
+  <aside class="notes">Mão levantada. Mapear o nível da turma. Perguntar 1-2 alunos para que usaram.</aside>
+</section>
+
+<!-- S3 SEBRAE -->
+<section data-background-color="#0b1220" class="dark">
+  <div class="timer">00–10 min</div>
+  <div class="kicker">Dado 1 · Pequenos negócios no Brasil</div>
+  <div class="split">
+    <div>
+      <div class="big-number"><span data-count="52">0</span><span class="unit">%</span></div>
+      <p class="lead" style="color:#cbd5e1;margin-top:30px">dos donos de micro e pequenos negócios <strong>usaram IA</strong> nas duas semanas anteriores à pesquisa.</p>
+    </div>
+    <div class="fragment fade-left" style="border-left:4px solid #2a3550;padding-left:60px">
+      <div class="stat warn"><div class="n"><span data-count="38">0</span><span class="unit">%</span></div>
+      <div class="d">dos que <strong>não usam</strong> dizem que o motivo é <strong>não saber o que a ferramenta consegue fazer</strong>.</div></div>
+    </div>
+  </div>
+  <div class="source">Fonte: Sebrae + Meta · Transformação Digital nos Pequenos Negócios</div>
+  <aside class="notes">O problema não é acesso — o celular de todo mundo já tem IA. O problema é saber usar. É isso que vamos resolver hoje.</aside>
+</section>
+
+<!-- S4 HARVARD -->
+<section data-background-color="#0b1220" class="dark">
+  <div class="timer">00–10 min</div>
+  <div class="kicker">Dado 2 · Harvard + BCG · 758 profissionais</div>
+  <h2>Metade trabalhou com IA. Metade sem.</h2>
+  <div class="stat-row">
+    <div class="stat fragment fade-up"><div class="n">+<span data-count="25">0</span><span class="unit">%</span></div><div class="d">mais <strong>rápidos</strong></div></div>
+    <div class="stat fragment fade-up"><div class="n">+<span data-count="40">0</span><span class="unit">%</span></div><div class="d">mais <strong>qualidade</strong> no resultado</div></div>
+    <div class="stat fragment fade-up"><div class="n">+<span data-count="43">0</span><span class="unit">%</span></div><div class="d">de ganho para os <strong>menos experientes</strong></div></div>
+  </div>
+  <div class="source">Fonte: Dell'Acqua et al. · Navigating the Jagged Technological Frontier · Harvard Business School, 2023</div>
+  <aside class="notes">O dado mais importante para vocês é o último: quem está começando é quem MAIS ganha com IA. A IA nivela o jogo.</aside>
+</section>
+
+<!-- S5 ALERTA -->
+<section data-background-color="#0b1220" class="dark">
+  <div class="timer">00–10 min</div>
+  <div class="kicker">Dado 3 · O perigo do "copia e cola" cego</div>
+  <h2>Quem usou no piloto automático<br>errou mais do que quem fez sozinho.</h2>
+  <div class="split" style="height:auto;margin-top:20px">
+    <div>
+      <div class="big-number" style="color:#fca5a5;font-size:210px">+<span data-count="19">0</span><span class="unit" style="color:#fca5a5">%</span></div>
+      <p class="lead" style="color:#cbd5e1;margin-top:20px;font-size:34px"><strong>de erros</strong> entre as pessoas que apenas aceitaram a resposta da IA <strong>sem revisar</strong>.</p>
+    </div>
+    <div class="fragment fade-left" style="border-left:4px solid #2a3550;padding-left:55px">
+      <p style="font-size:30px;color:#cbd5e1;margin-bottom:28px">A IA escreve com total confiança mesmo quando <strong>inventa um dado</strong> ou erra uma conta.</p>
+      <div class="quote" style="color:#fff;font-size:56px">IA é <span style="color:#7aa2ff">assistente</span>.<br>Não é chefe.</div>
+    </div>
+  </div>
+  <div class="source">Fonte: Dell'Acqua et al. · Harvard Business School, 2023</div>
+  <aside class="notes">Quando o profissional desligou o cérebro e só copiou a IA sem checar, errou 19% a mais do que quem nem usou IA. Quem responde pelo anúncio, pelo preço e pela promessa é você.</aside>
+</section>
+
+<!-- ============ ATO 2 ============ -->
+
+<!-- S6 COMÉRCIO NO CELULAR -->
+<section>
+  <div class="timer">10–20 min</div>
+  <div class="kicker">O comércio de hoje</div>
+  <h2>O cliente decide<br>rolando o dedo.</h2>
+  <div class="grid g3">
+    <div class="card fragment fade-up"><h3><i data-lucide="trending-up" class="ico"></i>~R$ 235 bi</h3><p>faturamento do e-commerce brasileiro em 2025</p></div>
+    <div class="card fragment fade-up"><h3><i data-lucide="users" class="ico"></i>~94 mi</h3><p>de compradores online no país</p></div>
+    <div class="card fragment fade-up accent"><h3><i data-lucide="smartphone" class="ico"></i>Celular</h3><p>é onde acontece a maior parte das compras</p></div>
+  </div>
+  <p class="fragment lead" style="margin-top:44px">Foto ruim e texto fraco = <strong>o cliente passa direto</strong>.</p>
+  <div class="source">Fonte: ABComm / levantamentos de mercado 2025 (valores aproximados)</div>
+  <aside class="notes">Vocês competem com milhares de anúncios na mesma tela. A diferença está em segundos de atenção.</aside>
+</section>
+
+<!-- S7 DORES -->
+<section>
+  <div class="timer">10–20 min</div>
+  <div class="kicker">Pergunta para a turma</div>
+  <h2>O que mais toma tempo<br>de quem vende?</h2>
+  <div class="grid g4">
+    <div class="card fragment fade-up"><h3><i data-lucide="pen-line" class="ico"></i>Textos</h3><p>Título, descrição e post para cada produto</p></div>
+    <div class="card fragment fade-up"><h3><i data-lucide="message-circle" class="ico"></i>Mensagens</h3><p>Atendimento no chat, "tá caro", cliente que sumiu</p></div>
+    <div class="card fragment fade-up"><h3><i data-lucide="camera" class="ico"></i>Fotos</h3><p>Luz ruim, fundo bagunçado, cara de amador</p></div>
+    <div class="card fragment fade-up"><h3><i data-lucide="folder-cog" class="ico"></i>Rotina</h3><p>E-mail para fornecedor, planilha, organização</p></div>
+  </div>
+  <aside class="notes">Deixe a turma responder ANTES de revelar os cards. Revele um por um conforme eles citarem.</aside>
+</section>
+
+<!-- S8 DOR -> IA -->
+<section>
+  <div class="timer">10–20 min</div>
+  <div class="kicker">Onde a IA entra</div>
+  <h2>Cada dor tem um atalho.</h2>
+  <table class="t">
+    <thead><tr><th>Dor</th><th>O que a IA faz</th><th>Exemplo de ganho</th></tr></thead>
+    <tbody>
+      <tr class="fragment"><td>Textos</td><td>Gera títulos, benefícios e ficha técnica</td><td>30 min → 2 min</td></tr>
+      <tr class="fragment"><td>Chat / Mensagens</td><td>Rascunha respostas para dúvidas e objeções</td><td>Improviso → 3 opções prontas</td></tr>
+      <tr class="fragment"><td>Fotos</td><td>Troca fundo, corrige luz, cria cenário</td><td>Estúdio → celular + IA</td></tr>
+      <tr class="fragment"><td>Rotina</td><td>E-mail formal, planilha, resumo</td><td>20 min → 1 min</td></tr>
+    </tbody>
+  </table>
+  <p class="muted" style="font-size:22px;margin-top:20px">* Tempos ilustrativos, não são dados de pesquisa.</p>
+</section>
+
+<!-- S9 DEMO RELÂMPAGO -->
+<section>
+  <div class="timer">10–20 min</div>
+  <div class="activity">DEMO AO VIVO · 2 MIN</div>
+  <div class="kicker">Teste rápido</div>
+  <h2>Vamos pedir para a IA<br>responder uma reclamação.</h2>
+  <div class="prompt" style="margin-top:30px">"Responda essa reclamação de cliente: <span class="hl">meu pedido chegou atrasado e a caixa amassada.</span>"</div>
+  <p class="fragment lead" style="margin-top:40px">Funcionou… mas ficou <strong>genérico</strong>, não ficou?<br>Isso acontece porque <strong>eu pedi mal</strong>.</p>
+  <aside class="notes">Abrir o Gemini no projetor e colar exatamente esse pedido. Mostrar a resposta. Depois: "agora vamos aprender a pedir bem". Ponte para o Ato 3.</aside>
+</section>
+
+<!-- ============ ATO 3 ============ -->
+
+<!-- S10 NÃO É GOOGLE -->
+<section>
+  <div class="timer">20–45 min</div>
+  <div class="kicker">Parte 1 · Como criar um bom prompt</div>
+  <h2>A IA não é o Google.</h2>
+  <div class="grid g2">
+    <div class="card"><h3><i data-lucide="search" class="ico"></i>No Google você <u>busca</u></h3><p>Algo que já existe. Poucas palavras bastam:<br><code>tênis corrida</code></p></div>
+    <div class="card accent fragment fade-left"><h3><i data-lucide="sparkles" class="ico"></i>Na IA você <u>encomenda</u></h3><p>Algo novo, feito sob medida. Se pedir como no Google, recebe uma resposta <strong>rasa</strong>.</p></div>
+  </div>
+</section>
+
+<!-- S11 ESTAGIÁRIO -->
+<section>
+  <div class="timer">20–45 min</div>
+  <div class="kicker">Analogia</div>
+  <div class="split">
+    <div>
+      <h2>O estagiário genial<br>que não lê mentes.</h2>
+      <ul class="steps">
+        <li class="fragment">Leu todos os livros de marketing do mundo</li>
+        <li class="fragment">Escreve 200 palavras por minuto e não cansa</li>
+        <li class="fragment">Mas <strong>só sabe o que você conta para ele</strong></li>
+      </ul>
+    </div>
+    <div class="card accent fragment fade-left">
+      <span class="lbl" style="color:var(--blue)">Moral da história</span>
+      <p style="font-size:36px;font-weight:700;color:var(--ink)">Resposta ruim quase sempre é <u>pedido</u> ruim.</p>
+    </div>
+  </div>
+</section>
+
+<!-- S12 PROMPT VAGO -->
+<section>
+  <div class="timer">20–45 min</div>
+  <div class="kicker">Por que o pedido vago falha</div>
+  <h2>O que você não diz,<br>a IA chuta. E chuta o óbvio.</h2>
+  <div class="grid g2">
+    <div class="chat"><span class="who">Você</span>Faça um post para vender uma garrafa térmica.</div>
+    <div class="chat"><span class="who">IA</span><span id="typed-cliche"></span></div>
+  </div>
+  <div class="callout fragment"><b>Faltou:</b> para quem? quanto custa? academia ou escritório? qual o diferencial?</div>
+  <aside class="notes">O texto da direita é digitado automaticamente ao entrar no slide. Pergunte: alguém compraria por causa desse post?</aside>
+</section>
+
+<!-- S13 RCOF -->
+<section>
+  <div class="timer">20–45 min</div>
+  <div class="kicker">A fórmula · serve para qualquer IA</div>
+  <h2>R · C · O · F</h2>
+  <div class="rcof">
+    <div class="col fragment fade-up"><div class="L">R</div><div class="N">Role (papel)</div><div class="Q">Quem a IA veste?</div><div class="D">Vendedor, gerente, redator de anúncios…</div></div>
+    <div class="col fragment fade-up"><div class="L">C</div><div class="N">Contexto</div><div class="Q">Qual é o cenário?</div><div class="D">Produto, preço, cliente, diferencial.</div></div>
+    <div class="col fragment fade-up"><div class="L">O</div><div class="N">Objetivo</div><div class="Q">Qual é a missão?</div><div class="D">A tarefa exata: 3 títulos, 1 resposta…</div></div>
+    <div class="col fragment fade-up"><div class="L">F</div><div class="N">Formato</div><div class="Q">Como quer a entrega?</div><div class="D">Tamanho, tom, tópicos, <strong>tabela p/ Excel, PDF, Word</strong>.</div></div>
+  </div>
+  <aside class="notes">Slide-âncora. Volte nele sempre que precisar. Está na seção 2.0 da apostila.</aside>
+</section>
+
+<!-- S14 CONSTRUÇÃO (auto-animate) -->
+<section data-auto-animate>
+  <div class="timer">20–45 min</div>
+  <div class="kicker">Montando um prompt, camada por camada</div>
+  <h2 data-id="t14">Vamos construir juntos.</h2>
+  <div class="prompt" data-id="p14"><span class="tag">R</span> Você é um vendedor experiente de loja de calçados.</div>
+</section>
+<section data-auto-animate>
+  <div class="timer">20–45 min</div>
+  <div class="kicker">Montando um prompt, camada por camada</div>
+  <h2 data-id="t14">+ Contexto</h2>
+  <div class="prompt" data-id="p14"><span class="tag">R</span> Você é um vendedor experiente de loja de calçados.
+<span class="tag">C</span> <span class="hl">O cliente trabalha em pé o dia todo e tem dor nos pés.
+   O tênis custa R$ 180 e tem palmilha ortopédica.</span></div>
+</section>
+<section data-auto-animate>
+  <div class="timer">20–45 min</div>
+  <div class="kicker">Montando um prompt, camada por camada</div>
+  <h2 data-id="t14">+ Objetivo + Formato</h2>
+  <div class="prompt" data-id="p14"><span class="tag">R</span> Você é um vendedor experiente de loja de calçados.
+<span class="tag">C</span> O cliente trabalha em pé o dia todo e tem dor nos pés.
+   O tênis custa R$ 180 e tem palmilha ortopédica.
+<span class="tag">O</span> <span class="hl">Escreva uma mensagem direta de chat convidando-o a experimentar.</span>
+<span class="tag">F</span> <span class="hl">Até 4 linhas, tom amigável, termine com uma pergunta.</span></div>
+  <aside class="notes">Compare com o pedido da garrafa. Agora a IA não precisa chutar nada.</aside>
+</section>
+
+<!-- S15 DEMO COMPARATIVA -->
+<section>
+  <div class="timer">20–45 min</div>
+  <div class="activity">DEMO AO VIVO</div>
+  <div class="kicker">Mesmo pedido, duas versões</div>
+  <h2>Qual vende mais?</h2>
+  <div class="grid g2">
+    <div class="card bad"><span class="lbl">Pedido vago</span><p class="mono" style="font-size:25px">"Escreve uma mensagem pra vender tênis."</p></div>
+    <div class="card good"><span class="lbl">Pedido R-C-O-F</span><p class="mono" style="font-size:25px">"Você é vendedor de calçados. Cliente trabalha em pé e tem dor nos pés. Tênis R$ 180 com palmilha ortopédica. Mensagem curta para chat, até 4 linhas, termine com pergunta."</p></div>
+  </div>
+  <aside class="notes">Rodar os dois no Gemini lado a lado. Votação da turma com a mão.</aside>
+</section>
+
+<!-- S16 DICAS -->
+<section>
+  <div class="timer">20–45 min</div>
+  <div class="kicker">Vale para qualquer IA</div>
+  <h2>3 hábitos de quem usa bem.</h2>
+  <div class="grid g3">
+    <div class="card fragment fade-up"><h3><i data-lucide="repeat" class="ico"></i>Converse</h3><p>"Mais curto." "Mais informal." "Me dá mais 3 opções." O primeiro resultado é rascunho.</p></div>
+    <div class="card fragment fade-up"><h3><i data-lucide="copy" class="ico"></i>Dê exemplos</h3><p>"Escreva no estilo deste texto: …" A IA imita muito bem.</p></div>
+    <div class="card fragment fade-up accent"><h3><i data-lucide="shield-check" class="ico"></i>Revise sempre</h3><p>A IA erra preço, inventa dado e exagera promessa. <strong>Quem responde é você.</strong></p></div>
+  </div>
+</section>
+
+<!-- S17 ATIVIDADE 1 -->
+<section>
+  <div class="activity">ATIVIDADE 1 · 15 MIN</div>
+  <div class="kicker">Sua vez · 45–60 min</div>
+  <h2>Escolha um produto qualquer<br>e aplique o R-C-O-F.</h2>
+  <div class="grid g2">
+    <div>
+      <ol class="steps">
+        <li>3 títulos de anúncio</li>
+        <li>Descrição com 3 benefícios</li>
+        <li>Resposta para um cliente que disse <strong>"tá caro"</strong></li>
+      </ol>
+    </div>
+    <div class="card accent">
+      <span class="lbl" style="color:var(--blue)">Desafio bônus</span>
+      <p>Peça o resultado em <strong>formato de tabela</strong> para colar direto no Excel.</p>
+      <p class="muted" style="font-size:22px;margin-top:20px">Modelos prontos: apostila, seção 3.0</p>
+    </div>
+  </div>
+  <aside class="notes">Circular pela sala. Nos últimos 2 min, dois alunos leem o resultado em voz alta.</aside>
+</section>
+
+<!-- ============ ATO 4 ============ -->
+
+<!-- S18 OLHOS -->
+<section data-background-color="#0b1220" class="dark">
+  <div class="timer">60–90 min</div>
+  <div class="kicker">Parte 2 · IA visual</div>
+  <h1 style="font-size:130px;color:#fff">A gente compra<br>com os olhos.</h1>
+  <p class="lead fragment" style="color:#cbd5e1;margin-top:40px">O texto que vocês acabaram de fazer <strong>não salva uma foto ruim</strong>.</p>
+</section>
+
+<!-- S19 O QUE CONSEGUE -->
+<section>
+  <div class="timer">60–90 min</div>
+  <div class="kicker">O que a IA de imagem faz hoje</div>
+  <h2>Um estúdio de foto<br>dentro do navegador.</h2>
+  <div class="grid g3">
+    <div class="card fragment fade-up"><h3><i data-lucide="eraser" class="ico"></i>Fundo</h3><p>Remove e troca o fundo mantendo o produto</p></div>
+    <div class="card fragment fade-up"><h3><i data-lucide="sun" class="ico"></i>Luz</h3><p>Corrige luz amarela, sombra dura e reflexo</p></div>
+    <div class="card fragment fade-up"><h3><i data-lucide="image" class="ico"></i>Cenário</h3><p>Coloca o produto numa vitrine, mesa ou campanha</p></div>
+  </div>
+  <p class="lead fragment" style="margin-top:40px">Ferramenta da aula: <strong>Gemini</strong> · reserva: <strong>ChatGPT</strong></p>
+  <aside class="notes">As versões gratuitas têm limite diário de imagens. Se alguém travar, troca de ferramenta.</aside>
+</section>
+
+<!-- S20 PONTE -->
+<section>
+  <div class="timer">60–90 min</div>
+  <div class="kicker">A ponte entre as duas partes</div>
+  <h2>O código <code style="color:var(--blue)">/</code> é um R-C-O-F comprimido.</h2>
+  <div class="grid g2">
+    <div class="card"><span class="lbl" style="color:var(--muted)">Escrito por extenso</span><p class="mono" style="font-size:24px">"Fotografia de estúdio profissional, iluminação suave de softbox, fundo desfocado, câmera DSLR, foco nítido no produto…"</p></div>
+    <div class="card accent fragment fade-left"><span class="lbl" style="color:var(--blue)">Com atalho</span><p class="mono" style="font-size:60px;font-weight:700;color:var(--blue)">/proshot</p></div>
+  </div>
+  <div class="callout fragment"><b>Transparência:</b> não são comandos oficiais. São palavras-chave que viralizaram e que a IA entende pelo significado. Por isso: <strong>código + contexto</strong> = melhor resultado.</div>
+</section>
+
+<!-- S21 CÓDIGOS ESTÚDIO -->
+<section>
+  <div class="timer">60–90 min</div>
+  <div class="kicker">Códigos de estúdio e vitrine</div>
+  <h2>Para vender no dia a dia.</h2>
+  <div class="codes">
+    <div class="code"><div class="c">/proshot</div><div class="w">Estúdio profissional</div><div class="u">Tira a cara de foto caseira</div></div>
+    <div class="code"><div class="c">/hdreal</div><div class="w">Ultra nitidez</div><div class="u">Recupera foto embaçada</div></div>
+    <div class="code"><div class="c">/lightfix</div><div class="w">Corrige a luz</div><div class="u">Luz amarela, sombra dura</div></div>
+    <div class="code"><div class="c">/cleanbg</div><div class="w">Fundo branco</div><div class="u">Padrão de marketplace</div></div>
+    <div class="code"><div class="c">/newbg</div><div class="w">Novo cenário</div><div class="u">+ descreva o ambiente</div></div>
+    <div class="code"><div class="c">/topdown</div><div class="w">Visto de cima</div><div class="u">Roupas, café, acessórios</div></div>
+    <div class="code"><div class="c">/macroshot</div><div class="w">Super zoom</div><div class="u">Acabamento e logotipo</div></div>
+    <div class="code"><div class="c">/cinematic</div><div class="w">Campanha</div><div class="u">Lançamento, Black Friday</div></div>
+  </div>
+</section>
+
+<!-- S22 CÓDIGOS UAU -->
+<section>
+  <div class="timer">60–90 min</div>
+  <div class="kicker">Códigos de "efeito uau"</div>
+  <h2>Para mostrar o que<br>tem dentro do produto.</h2>
+  <div class="codes">
+    <div class="code fragment fade-up"><div class="c">/explodedview</div><div class="w">Visão explodida</div><div class="u">Peças flutuando alinhadas. Fones, tênis, garrafas.</div></div>
+    <div class="code fragment fade-up"><div class="c">/cutaway</div><div class="w">Corte</div><div class="u">Mostra camadas internas: amortecimento, parede dupla.</div></div>
+    <div class="code fragment fade-up"><div class="c">/knolling</div><div class="w">Organização 90°</div><div class="u">Kits e combos alinhados, vistos de cima.</div></div>
+    <div class="code fragment fade-up"><div class="c">/blueprint</div><div class="w">Planta técnica</div><div class="u">Linhas brancas em fundo azul: ideia de projeto.</div></div>
+  </div>
+</section>
+
+<!-- S23 DEMO + FÓRMULA -->
+<section>
+  <div class="timer">60–90 min</div>
+  <div class="activity">DEMO + PRÁTICA · 15 MIN</div>
+  <div class="kicker">A fórmula da imagem</div>
+  <h2>Código + contexto.</h2>
+  <div class="prompt" style="font-size:30px">[foto anexada]
+<span class="tag">/</span>proshot /newbg <span class="hl">bancada de madeira clara, luz da manhã</span>
+<span class="hl">foto para anúncio do Instagram</span>
+<span class="hl">mantenha o produto, a cor e o logotipo idênticos</span></div>
+  <div class="callout fragment"><b>Dica de ouro:</b> sempre escreva <strong>"mantenha o produto idêntico"</strong>. Sem isso a IA às vezes inventa um produto diferente.</div>
+  <aside class="notes">Ao vivo: primeiro só "/proshot", depois a versão completa. Mostrar a diferença. Depois os alunos repetem com qualquer foto do kit.</aside>
+</section>
+
+<!-- ============ ATO 5 ============ -->
+
+<!-- S24 DESAFIO -->
+<section data-background-color="#1d4ed8" class="dark">
+  <div class="timer" style="color:#dbe6ff;border-color:#4f7bff">90–115 min</div>
+  <div class="kicker" style="color:#dbe6ff">Desafio final · individual ou dupla</div>
+  <h1 style="font-size:116px;color:#fff">Do bruto<br>ao vendável.</h1>
+  <div class="grid g2" style="margin-top:50px">
+    <div style="border-top:4px solid #fff;padding-top:20px"><h3>1 · Imagem comercial</h3><p style="color:#dbe6ff;font-size:28px">Foto da pasta <code>DESAFIO_FINAL</code> + código + contexto</p></div>
+    <div style="border-top:4px solid #fff;padding-top:20px"><h3>2 · Anúncio R-C-O-F</h3><p style="color:#dbe6ff;font-size:28px">Título, 3 benefícios, preço e mensagem de fechamento para chat</p></div>
+  </div>
+  <p style="color:#dbe6ff;font-size:26px;margin-top:40px"><strong>Bônus:</strong> carrossel em 3 slides ou versão para Mercado Livre.</p>
+</section>
+
+<!-- S25 CRITÉRIOS -->
+<section>
+  <div class="timer">90–115 min</div>
+  <div class="kicker">Checklist · deixe esta tela aberta</div>
+  <h2>O que faz um anúncio vender?</h2>
+  <div class="grid g3">
+    <div class="card"><h3><i data-lucide="image" class="ico"></i>Imagem</h3><p>O produto continua fiel ao original?<br>Parece profissional?</p></div>
+    <div class="card"><h3><i data-lucide="target" class="ico"></i>Texto</h3><p>Fala com um cliente específico?<br>Tem <strong>benefício</strong>, não só característica?</p></div>
+    <div class="card"><h3><i data-lucide="mouse-pointer-click" class="ico"></i>Ação</h3><p>O cliente sabe exatamente o que fazer depois de ler?</p></div>
+  </div>
+</section>
+
+<!-- S26 FECHAMENTO -->
+<section>
+  <div class="timer">115–120 min</div>
+  <div class="kicker">Vitrine da turma · votação</div>
+  <h2>Leve isso para a vida.</h2>
+  <ol class="steps">
+    <li class="fragment"><span><strong>Prompt bom = contexto bom.</strong> R-C-O-F serve para qualquer IA, para qualquer coisa.</span></li>
+    <li class="fragment"><span><strong>Código de imagem é atalho</strong>, não mágica.</span></li>
+    <li class="fragment"><span><strong>Revise sempre.</strong> Você é o responsável; a IA é a assistente.</span></li>
+  </ol>
+  <p class="quote fragment" style="font-size:46px;margin-top:40px">A IA não vai tirar sua vaga.<br><span style="color:var(--blue)">Quem sabe usar IA vai.</span></p>
+  <div class="source">Gabriel Soares · apostila em PDF na pasta do computador</div>
+  <aside class="notes">Projetar 3 trabalhos (antes x depois), votação com a mão. Lembrar da apostila.</aside>
+</section>
+
+</div></div>
+
+<script src="lib/reveal.js"></script>
+<script src="lib/notes.js"></script>
+<script src="lib/countUp.umd.js"></script>
+<script src="lib/typed.umd.js"></script>
+<script src="lib/lucide.min.js"></script>
+<script>
+  Reveal.initialize({
+    width:1920, height:1080, margin:0, minScale:.2, maxScale:2,
+    center:false, hash:true, progress:true, slideNumber:'c/t',
+    transition:'fade', transitionSpeed:'fast', backgroundTransition:'fade',
+    autoAnimateDuration:.7, plugins:[RevealNotes]
+  });
+
+  if (window.lucide) lucide.createIcons();
+
+  let typed = null;
+  function runCount(root){
+    root.querySelectorAll('[data-count]').forEach(el=>{
+      if(el.closest('.fragment:not(.visible)')) return;
+      const c = new countUp.CountUp(el, +el.dataset.count, {duration:1.2});
+      c.start();
+    });
+  }
+  function onSlide(slide){
+    runCount(slide);
+    const t = slide.querySelector('#typed-cliche');
+    if (t){
+      if (typed) typed.destroy();
+      typed = new Typed(t,{strings:['☀️ Mantenha seu dia aquecido! Nossa garrafa térmica é perfeita para você! Garanta já a sua! 🔥'],typeSpeed:28,showCursor:true});
+    }
+  }
+  Reveal.on('ready', e => onSlide(e.currentSlide));
+  Reveal.on('slidechanged', e => onSlide(e.currentSlide));
+  Reveal.on('fragmentshown', e => {
+    if(e.fragment.hasAttribute('data-count')){
+      new countUp.CountUp(e.fragment, +e.fragment.dataset.count, {duration:1.2}).start();
+    } else {
+      e.fragment.querySelectorAll('[data-count]').forEach(el=>{
+        new countUp.CountUp(el, +el.dataset.count, {duration:1.2}).start();
+      });
+    }
+  });
+</script>
+</body>
+</html>

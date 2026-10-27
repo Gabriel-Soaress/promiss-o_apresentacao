@@ -1071,12 +1071,24 @@ function applyData(p){
 const queue = []; let busy = false;
 function handleIncoming(p){
   if (!p || !p.cpf) return;
-  const id = p.timestamp + '|' + p.cpf;
-  if (seen.has(id)) return; seen.add(id);
+
+  const idKey = p.id ? ('db_' + p.id) : (p.timestamp + '|' + p.cpf);
+  const recentVoteKey = 'recent_' + p.cpf + '_' + (p.notaSlides || p.notaInfra || 5) + '_' + (p.notaIdeia || p.notaSeguranca || 5);
+  
+  if (seen.has(idKey) || seen.has(recentVoteKey)) {
+    console.log('[Slide] ⚠️ Voto duplicado ignorado:', p.cpf);
+    return;
+  }
+  seen.add(idKey);
+  seen.add(recentVoteKey);
+  setTimeout(() => seen.delete(recentVoteKey), 25000);
 
   // REGRA DE OURO: Apenas o Totem Físico tem o efeito dramático de mudar o slide!
+  const o = (p.origem || '').toLowerCase();
   const isTotem = (p.tipo === 'totem') || 
-                  (p.origem && (p.origem.toLowerCase().includes('totem') || p.origem.toLowerCase().includes('físico')));
+                  o.includes('totem') || 
+                  o.includes('físico') || 
+                  o.includes('fisico');
 
   if (isTotem) {
     console.log('[Slide] 🖥️ Voto do Totem Físico recebido! Acionando takeover e transição de slide...');
@@ -1092,10 +1104,10 @@ function next(){
   busy = true;
   const to = $('takeover');
   $('to-cpf').textContent = maskCpf(p.cpf);
-  const slides = p.notaSlides || p.notaInfra || 5;
-  const ideia = p.notaIdeia || p.notaSeguranca || 5;
-  const geral = p.notaGeral || 5;
-  $('to-chips').innerHTML = `<span>Slides: ${slides}/5</span><span>Ideia: ${ideia}/5</span><span>Geral: ${geral}/5</span><span class="pts">+50 pontos</span>`;
+  const scoreSlides = p.notaSlides || p.notaInfra || 5;
+  const scoreIdeia = p.notaIdeia || p.notaSeguranca || 5;
+  const scoreGeral = p.notaGeral || 5;
+  $('to-chips').innerHTML = `<span>Slides: ${scoreSlides}/5</span><span>Ideia: ${scoreIdeia}/5</span><span>Geral: ${scoreGeral}/5</span><span class="pts">+50 pontos</span>`;
   to.classList.remove('out'); void to.offsetWidth; to.classList.add('in');
   totemFlash();
   setTimeout(() => goTo(LIVE, { instant: true }), 2300);
